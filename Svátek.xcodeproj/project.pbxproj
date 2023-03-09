@@ -7,23 +7,39 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EB0894C529B7478400986CC7 /* MNContacts.m in Sources */ = {isa = PBXBuildFile; fileRef = EB0894C429B7478400986CC7 /* MNContacts.m */; };
+		EB0894C829B747BE00986CC7 /* MNStartup.m in Sources */ = {isa = PBXBuildFile; fileRef = EB0894C729B747BE00986CC7 /* MNStartup.m */; };
+		EB0894CB29B747E000986CC7 /* MNNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = EB0894CA29B747E000986CC7 /* MNNotifications.m */; };
+		EB0894CE29B747FB00986CC7 /* MNSvatek.m in Sources */ = {isa = PBXBuildFile; fileRef = EB0894CD29B747FB00986CC7 /* MNSvatek.m */; };
 		EB33538029AFB886004D2406 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = EB33537F29AFB886004D2406 /* AppDelegate.m */; };
-		EB33538329AFB886004D2406 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB33538229AFB886004D2406 /* ViewController.m */; };
 		EB33538529AFB887004D2406 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EB33538429AFB887004D2406 /* Assets.xcassets */; };
 		EB33538829AFB887004D2406 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EB33538629AFB887004D2406 /* Main.storyboard */; };
 		EB33538A29AFB887004D2406 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EB33538929AFB887004D2406 /* main.m */; };
+		EB33539229B003C7004D2406 /* svatky.csv in Resources */ = {isa = PBXBuildFile; fileRef = EB33539129B003C7004D2406 /* svatky.csv */; };
+		EB33539429B00FD5004D2406 /* rose-32.png in Resources */ = {isa = PBXBuildFile; fileRef = EB33539329B00FD5004D2406 /* rose-32.png */; };
+		EB33539629B01002004D2406 /* rose-16.png in Resources */ = {isa = PBXBuildFile; fileRef = EB33539529B01002004D2406 /* rose-16.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		EB0894C329B7478400986CC7 /* MNContacts.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MNContacts.h; sourceTree = "<group>"; };
+		EB0894C429B7478400986CC7 /* MNContacts.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MNContacts.m; sourceTree = "<group>"; };
+		EB0894C629B747BE00986CC7 /* MNStartup.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MNStartup.h; sourceTree = "<group>"; };
+		EB0894C729B747BE00986CC7 /* MNStartup.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MNStartup.m; sourceTree = "<group>"; };
+		EB0894C929B747E000986CC7 /* MNNotifications.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MNNotifications.h; sourceTree = "<group>"; };
+		EB0894CA29B747E000986CC7 /* MNNotifications.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MNNotifications.m; sourceTree = "<group>"; };
+		EB0894CC29B747FB00986CC7 /* MNSvatek.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MNSvatek.h; sourceTree = "<group>"; };
+		EB0894CD29B747FB00986CC7 /* MNSvatek.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MNSvatek.m; sourceTree = "<group>"; };
 		EB33537B29AFB886004D2406 /* Svátek.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Svátek.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB33537E29AFB886004D2406 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		EB33537F29AFB886004D2406 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		EB33538129AFB886004D2406 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		EB33538229AFB886004D2406 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		EB33538429AFB887004D2406 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EB33538729AFB887004D2406 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		EB33538929AFB887004D2406 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EB33538B29AFB887004D2406 /* Sva_tek.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sva_tek.entitlements; sourceTree = "<group>"; };
+		EB33539129B003C7004D2406 /* svatky.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = svatky.csv; sourceTree = "<group>"; };
+		EB33539329B00FD5004D2406 /* rose-32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "rose-32.png"; path = "Assets.xcassets/rose-32.png"; sourceTree = "<group>"; };
+		EB33539529B01002004D2406 /* rose-16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "rose-16.png"; path = "Assets.xcassets/rose-16.png"; sourceTree = "<group>"; };
+		EBFA859629B3E8250031E4B1 /* SvátekRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "SvátekRelease.entitlements"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,14 +72,24 @@
 		EB33537D29AFB886004D2406 /* Svátek */ = {
 			isa = PBXGroup;
 			children = (
+				EBFA859629B3E8250031E4B1 /* SvátekRelease.entitlements */,
+				EB0894C929B747E000986CC7 /* MNNotifications.h */,
+				EB0894CA29B747E000986CC7 /* MNNotifications.m */,
+				EB0894CC29B747FB00986CC7 /* MNSvatek.h */,
+				EB0894CD29B747FB00986CC7 /* MNSvatek.m */,
+				EB0894C629B747BE00986CC7 /* MNStartup.h */,
+				EB0894C729B747BE00986CC7 /* MNStartup.m */,
+				EB0894C329B7478400986CC7 /* MNContacts.h */,
+				EB0894C429B7478400986CC7 /* MNContacts.m */,
 				EB33537E29AFB886004D2406 /* AppDelegate.h */,
 				EB33537F29AFB886004D2406 /* AppDelegate.m */,
-				EB33538129AFB886004D2406 /* ViewController.h */,
-				EB33538229AFB886004D2406 /* ViewController.m */,
 				EB33538429AFB887004D2406 /* Assets.xcassets */,
 				EB33538629AFB887004D2406 /* Main.storyboard */,
 				EB33538929AFB887004D2406 /* main.m */,
 				EB33538B29AFB887004D2406 /* Sva_tek.entitlements */,
+				EB33539129B003C7004D2406 /* svatky.csv */,
+				EB33539329B00FD5004D2406 /* rose-32.png */,
+				EB33539529B01002004D2406 /* rose-16.png */,
 			);
 			path = "Svátek";
 			sourceTree = "<group>";
@@ -126,7 +152,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				EB33538529AFB887004D2406 /* Assets.xcassets in Resources */,
+				EB33539429B00FD5004D2406 /* rose-32.png in Resources */,
+				EB33539229B003C7004D2406 /* svatky.csv in Resources */,
 				EB33538829AFB887004D2406 /* Main.storyboard in Resources */,
+				EB33539629B01002004D2406 /* rose-16.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -137,9 +166,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EB33538329AFB886004D2406 /* ViewController.m in Sources */,
+				EB0894C829B747BE00986CC7 /* MNStartup.m in Sources */,
 				EB33538A29AFB887004D2406 /* main.m in Sources */,
+				EB0894CE29B747FB00986CC7 /* MNSvatek.m in Sources */,
 				EB33538029AFB886004D2406 /* AppDelegate.m in Sources */,
+				EB0894CB29B747E000986CC7 /* MNNotifications.m in Sources */,
+				EB0894C529B7478400986CC7 /* MNContacts.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -160,7 +192,9 @@
 		EB33538C29AFB887004D2406 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -189,8 +223,12 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COPY_PHASE_STRIP = NO;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				COPY_PHASE_STRIP = YES;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = U5Y2V73N72;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -207,18 +245,22 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 13.1;
+				INFOPLIST_KEY_NSContactsUsageDescription = "Čtení jmen kontaktů a upozorňování na svátek konkrétního kontaktu. (DEBUG)";
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
 		};
 		EB33538D29AFB887004D2406 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -247,8 +289,12 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				CODE_SIGN_IDENTITY = "3rd Party Mac Developer Application";
+				COPY_PHASE_STRIP = YES;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = U5Y2V73N72;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -259,10 +305,13 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 13.1;
+				INFOPLIST_KEY_NSContactsUsageDescription = "Čtení jmen kontaktů a upozorňování na svátek konkrétního kontaktu.";
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = macosx;
+				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
 		};
@@ -271,23 +320,35 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = "Svátek/Sva_tek.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = U5Y2V73N72;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_CFBundleDisplayName = "Svátek";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSContactsUsageDescription = "Čtení jmen kontaktů a upozorňování na svátek konkrétního kontaktu. (DEBUG)";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "2023, Mirek";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				INFOPLIST_KEY_UILaunchStoryboardName = Main.storyboard;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 0.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "net.novaci.Sva-tek";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				STRIP_INSTALLED_PRODUCT = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
 			name = Debug;
@@ -297,23 +358,34 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "Svátek/Sva_tek.entitlements";
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CODE_SIGN_ENTITLEMENTS = "Svátek/SvátekRelease.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = U5Y2V73N72;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_CFBundleDisplayName = "Svátek";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSContactsUsageDescription = "Čtení jmen kontaktů a upozorňování na svátek konkrétního kontaktu. (DEBUG)";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "2023, Mirek";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				INFOPLIST_KEY_UILaunchStoryboardName = Main.storyboard;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 0.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "net.novaci.Sva-tek";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
 			name = Release;
