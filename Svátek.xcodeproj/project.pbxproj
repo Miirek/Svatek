@@ -16,8 +16,6 @@
 		EB33538829AFB887004D2406 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EB33538629AFB887004D2406 /* Main.storyboard */; };
 		EB33538A29AFB887004D2406 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EB33538929AFB887004D2406 /* main.m */; };
 		EB33539229B003C7004D2406 /* svatky.csv in Resources */ = {isa = PBXBuildFile; fileRef = EB33539129B003C7004D2406 /* svatky.csv */; };
-		EB33539429B00FD5004D2406 /* rose-32.png in Resources */ = {isa = PBXBuildFile; fileRef = EB33539329B00FD5004D2406 /* rose-32.png */; };
-		EB33539629B01002004D2406 /* rose-16.png in Resources */ = {isa = PBXBuildFile; fileRef = EB33539529B01002004D2406 /* rose-16.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,8 +35,6 @@
 		EB33538929AFB887004D2406 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EB33538B29AFB887004D2406 /* Sva_tek.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sva_tek.entitlements; sourceTree = "<group>"; };
 		EB33539129B003C7004D2406 /* svatky.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = svatky.csv; sourceTree = "<group>"; };
-		EB33539329B00FD5004D2406 /* rose-32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "rose-32.png"; path = "Assets.xcassets/rose-32.png"; sourceTree = "<group>"; };
-		EB33539529B01002004D2406 /* rose-16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "rose-16.png"; path = "Assets.xcassets/rose-16.png"; sourceTree = "<group>"; };
 		EBFA859629B3E8250031E4B1 /* SvátekRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "SvátekRelease.entitlements"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -88,8 +84,6 @@
 				EB33538929AFB887004D2406 /* main.m */,
 				EB33538B29AFB887004D2406 /* Sva_tek.entitlements */,
 				EB33539129B003C7004D2406 /* svatky.csv */,
-				EB33539329B00FD5004D2406 /* rose-32.png */,
-				EB33539529B01002004D2406 /* rose-16.png */,
 			);
 			path = "Svátek";
 			sourceTree = "<group>";
@@ -152,10 +146,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				EB33538529AFB887004D2406 /* Assets.xcassets in Resources */,
-				EB33539429B00FD5004D2406 /* rose-32.png in Resources */,
 				EB33539229B003C7004D2406 /* svatky.csv in Resources */,
 				EB33538829AFB887004D2406 /* Main.storyboard in Resources */,
-				EB33539629B01002004D2406 /* rose-16.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -52,7 +52,7 @@
     CNAuthorizationStatus cnStatus = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
     NSLog(@"Contacts %ld",cnStatus);
     self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
-    _statusItem.button.image = [NSImage imageNamed:@"rose-16.png"];
+    _statusItem.button.image = [NSImage imageNamed:@"MenuRose"];
     _statusItem.button.image.prefersColorMatch = YES;
     [self setupNameDays];
 
