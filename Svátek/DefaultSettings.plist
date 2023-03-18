@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>names</key>
+	<dict>
+		<key>Adam</key>
+		<dict/>
+		<key>date</key>
+		<date>2023-03-10T09:17:27Z</date>
+		<key>alarm</key>
+		<false/>
+		<key>note</key>
+		<string>Adam Netopil</string>
+	</dict>
+	<key>scanContacts</key>
+	<false/>
+	<key>startOnLogIn</key>
+	<false/>
+</dict>
+</plist>

@@ -10,7 +10,9 @@
 #import <Contacts/Contacts.h>
 #import <UserNotifications/UserNotifications.h>
 
-
+#import "MNSvatek.h"
+#import "MNStartup.h"
+#import "MNSettings.h"
 
 @interface AppDelegate ()
 
@@ -27,22 +29,44 @@
 @property (strong, nonatomic) NSMenuItem *tomorrowName;
 @property (strong, nonatomic) NSMenuItem *tdatName; // TheDayAfterTomorrow Name
 
-@property (strong, nonatomic) SMAppService *smaService;
-
 @property (strong, nonatomic) CNContactStore *contacts;
 @property (strong, nonatomic) UNUserNotificationCenter *notifications;
+@property (strong, nonatomic) MNSvatek *svatek;
 
 @end
 
-@implementation AppDelegate
+@implementation AppDelegate{
+@protected
+    MNStartup *startupService;
 
+    
+    
+}
 
+- (void)applicationWillFinishLaunching:(NSNotification *)aNotification
+{
+    
+    NSLog(@"%s called", __PRETTY_FUNCTION__);
+    if(_svatek == nil){
+        _svatek = [[MNSvatek alloc] init];
+    }
+ 
+    if ([NSEvent modifierFlags] == NSEventModifierFlagShift) {
+        NSAlert *alert = [NSAlert alertWithMessageText:NSLocalizedString(@"DefaultsResetText", nil) defaultButton:NSLocalizedString(@"Cancel", nil) alternateButton:NSLocalizedString(@"OK", nil) otherButton:nil informativeTextWithFormat:NSLocalizedString(@"DefaultsResetDescription", nil)];
+        NSInteger returnCode = [alert runModal];
+        
+        if (returnCode == NSAlertAlternateReturn) {
+//            [[self svatek] resetDefaultSettings];
+        }
+    }
+            
+ //   [[self svatek] loadDefaultSettings];
+    // other setup...
+}
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-
-    _smaService = [SMAppService mainAppService];
-    SMAppServiceStatus result = [_smaService status];
-
-
+    NSLog(@"%s called", __PRETTY_FUNCTION__);
+    startupService = [[MNStartup alloc] init];
+        
     _contacts = [[CNContactStore alloc] init];
     _notifications = [UNUserNotificationCenter currentNotificationCenter];
     [_notifications getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * settings) {
@@ -70,7 +94,7 @@
         userInfo:nil
         repeats:YES];
     NSError *error;
-    NSLog(@"Error - %@; status: %ld ", error,result);
+    NSLog(@"Error - %@; status: %d ", error,[startupService isRegistered]);
 
 }
 
@@ -233,7 +257,7 @@
     NSMutableAttributedString *attAfterTomorrow = [[NSMutableAttributedString alloc] initWithString:_dayAfterTomorrow];
     [attAfterTomorrow beginEditing];
     [attAfterTomorrow addAttribute:NSFontAttributeName value:font range:NSMakeRange(8, [_dayAfterTomorrow length] - 8)];
-    [attAfterTomorrow addAttribute:NSForegroundColorAttributeName value:[NSColor systemOrangeColor] range:NSMakeRange(8, [_tomorrow length] - 8)];
+    [attAfterTomorrow addAttribute:NSForegroundColorAttributeName value:[NSColor systemOrangeColor] range:NSMakeRange(8, [_dayAfterTomorrow length] - 8)];
     [attAfterTomorrow endEditing];
 
     if(_launchAtLogin == nil){
@@ -263,9 +287,18 @@
     [menu addItem:_tdatName];
     [menu addItem:[NSMenuItem separatorItem]];
     [menu addItem:_launchAtLogin];
-    [menu addItemWithTitle:@"Upozornit na svátky z kontaktů" action:@selector(scanContacts:) keyEquivalent:@""];
+//    [menu addItemWithTitle:@"Upozornit na svátky z kontaktů" action:@selector(scanContacts:) keyEquivalent:@""];
     [menu addItemWithTitle:@"O aplikaci" action:@selector(about:) keyEquivalent:@""];
+    
+    __strong NSMenuItem *preferences = [[NSMenuItem alloc] init];
+    [preferences setTarget:[self svatek]];
+    [preferences setAction:@selector(showSettingsDialog:)];
+    [preferences setTitle:@"Nastavení..."];
+    [preferences setKeyEquivalent:@""];
+ //   [menu addItem:preferences];
+                //   WithTitle:@"Nastavení" action:@selector(showSettingsDialog:) keyEquivalent:@""];
     [menu addItem:[NSMenuItem separatorItem]];
+    
     [menu addItemWithTitle:@"Ukončit" action:@selector(quit:) keyEquivalent:@""];
     
     NSMenu *removed = _statusItem.menu;
@@ -353,6 +386,8 @@
     }
     return addrArr;
 }
+
+
 
 
 - (void)quit:(id)sender{

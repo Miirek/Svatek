@@ -16,6 +16,11 @@
 		EB33538829AFB887004D2406 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EB33538629AFB887004D2406 /* Main.storyboard */; };
 		EB33538A29AFB887004D2406 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EB33538929AFB887004D2406 /* main.m */; };
 		EB33539229B003C7004D2406 /* svatky.csv in Resources */ = {isa = PBXBuildFile; fileRef = EB33539129B003C7004D2406 /* svatky.csv */; };
+		EB8CC2C329BB2AAF0085D3FB /* DefaultSettings.plist in Resources */ = {isa = PBXBuildFile; fileRef = EB8CC2C229BB2AAF0085D3FB /* DefaultSettings.plist */; };
+		EB8CC2C529BB31790085D3FB /* Settings.xib in Resources */ = {isa = PBXBuildFile; fileRef = EB8CC2C429BB31790085D3FB /* Settings.xib */; };
+		EB8CC2C729BB908C0085D3FB /* Window.xib in Resources */ = {isa = PBXBuildFile; fileRef = EB8CC2C629BB908C0085D3FB /* Window.xib */; };
+		EB8CC2CB29BE34FD0085D3FB /* MNSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = EB8CC2C929BE34FD0085D3FB /* MNSettings.m */; };
+		EB8CC2CC29BE34FD0085D3FB /* MNSettings.xib in Resources */ = {isa = PBXBuildFile; fileRef = EB8CC2CA29BE34FD0085D3FB /* MNSettings.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +40,12 @@
 		EB33538929AFB887004D2406 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EB33538B29AFB887004D2406 /* Sva_tek.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sva_tek.entitlements; sourceTree = "<group>"; };
 		EB33539129B003C7004D2406 /* svatky.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = svatky.csv; sourceTree = "<group>"; };
+		EB8CC2C229BB2AAF0085D3FB /* DefaultSettings.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = DefaultSettings.plist; sourceTree = "<group>"; };
+		EB8CC2C429BB31790085D3FB /* Settings.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = Settings.xib; sourceTree = "<group>"; };
+		EB8CC2C629BB908C0085D3FB /* Window.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = Window.xib; sourceTree = "<group>"; };
+		EB8CC2C829BE34FD0085D3FB /* MNSettings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MNSettings.h; sourceTree = "<group>"; };
+		EB8CC2C929BE34FD0085D3FB /* MNSettings.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MNSettings.m; sourceTree = "<group>"; };
+		EB8CC2CA29BE34FD0085D3FB /* MNSettings.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MNSettings.xib; sourceTree = "<group>"; };
 		EBFA859629B3E8250031E4B1 /* SvátekRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "SvátekRelease.entitlements"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -52,6 +63,7 @@
 		EB33537229AFB886004D2406 = {
 			isa = PBXGroup;
 			children = (
+				EB8CC2C629BB908C0085D3FB /* Window.xib */,
 				EB33537D29AFB886004D2406 /* Svátek */,
 				EB33537C29AFB886004D2406 /* Products */,
 			);
@@ -80,10 +92,15 @@
 				EB33537E29AFB886004D2406 /* AppDelegate.h */,
 				EB33537F29AFB886004D2406 /* AppDelegate.m */,
 				EB33538429AFB887004D2406 /* Assets.xcassets */,
+				EB8CC2C229BB2AAF0085D3FB /* DefaultSettings.plist */,
 				EB33538629AFB887004D2406 /* Main.storyboard */,
+				EB8CC2C429BB31790085D3FB /* Settings.xib */,
 				EB33538929AFB887004D2406 /* main.m */,
 				EB33538B29AFB887004D2406 /* Sva_tek.entitlements */,
 				EB33539129B003C7004D2406 /* svatky.csv */,
+				EB8CC2C829BE34FD0085D3FB /* MNSettings.h */,
+				EB8CC2C929BE34FD0085D3FB /* MNSettings.m */,
+				EB8CC2CA29BE34FD0085D3FB /* MNSettings.xib */,
 			);
 			path = "Svátek";
 			sourceTree = "<group>";
@@ -145,9 +162,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EB8CC2CC29BE34FD0085D3FB /* MNSettings.xib in Resources */,
 				EB33538529AFB887004D2406 /* Assets.xcassets in Resources */,
+				EB8CC2C329BB2AAF0085D3FB /* DefaultSettings.plist in Resources */,
 				EB33539229B003C7004D2406 /* svatky.csv in Resources */,
 				EB33538829AFB887004D2406 /* Main.storyboard in Resources */,
+				EB8CC2C529BB31790085D3FB /* Settings.xib in Resources */,
+				EB8CC2C729BB908C0085D3FB /* Window.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -158,6 +179,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EB8CC2CB29BE34FD0085D3FB /* MNSettings.m in Sources */,
 				EB0894C829B747BE00986CC7 /* MNStartup.m in Sources */,
 				EB33538A29AFB887004D2406 /* main.m in Sources */,
 				EB0894CE29B747FB00986CC7 /* MNSvatek.m in Sources */,
