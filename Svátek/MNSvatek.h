@@ -11,6 +11,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MNSvatek : NSObject{
+    NSStatusItem *barItem;
+    
     NSMenuItem *tomorrowItem;
     NSMenuItem *tdaTomorrowItem;
     
@@ -19,13 +21,19 @@ NS_ASSUME_NONNULL_BEGIN
     NSMenuItem *quit;
 }
 
-@property (readwrite) BOOL shouldStartAtLogin;
-@property (readwrite) BOOL canScanContacts;
+@property (nonatomic, readwrite) BOOL shouldStartAtLogin;
+@property (nonatomic,readwrite) BOOL canScanContacts;
+@property (readwrite) NSString *todayName;
+@property (readwrite) NSString *tomorrowName;
+@property (readwrite) NSString *afterTomorrowName;
 
 -(void) showSettingsDialog:(id)sender;
+
 -(void) resetDefaultSettings;
 -(void) loadDefaultSettings;
 -(NSUserDefaults *) loadSettings;
+
+-(void) setUpMenu;
 
 -(void) startup;
 @end

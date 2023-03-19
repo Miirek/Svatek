@@ -31,24 +31,21 @@
 
 @property (strong, nonatomic) CNContactStore *contacts;
 @property (strong, nonatomic) UNUserNotificationCenter *notifications;
-@property (strong, nonatomic) MNSvatek *svatek;
 
 @end
 
 @implementation AppDelegate{
 @protected
     MNStartup *startupService;
-
-    
-    
+    MNSvatek *svatek;
 }
 
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification
 {
     
     NSLog(@"%s called", __PRETTY_FUNCTION__);
-    if(_svatek == nil){
-        _svatek = [[MNSvatek alloc] init];
+    if(svatek == nil){
+        svatek = [[MNSvatek alloc] init];
     }
  
     if ([NSEvent modifierFlags] == NSEventModifierFlagShift) {
@@ -65,7 +62,6 @@
 }
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     NSLog(@"%s called", __PRETTY_FUNCTION__);
-    startupService = [[MNStartup alloc] init];
         
     _contacts = [[CNContactStore alloc] init];
     _notifications = [UNUserNotificationCenter currentNotificationCenter];
@@ -135,64 +131,38 @@
 }
 
 -(void)tryRegisterLaunchLogin:(id)sender{
-    SMAppServiceStatus status = [_smaService status];
-    NSLog(@"Status: %ld", (long)status);
-    NSError *lastError;
-    BOOL registered = NO;
+    NSLog(@"%s called", __PRETTY_FUNCTION__);
+    startupService = [[MNStartup alloc] init];
     
-    if (status == SMAppServiceStatusNotFound){
-        NSLog(@"WTF - status not found??");
-        NSLog(@"Will try to register service");
-        NSError *error;
-        if(!(registered = [_smaService registerAndReturnError:&error])){
-            NSLog(@"Registration failed! Reason: %@", error);
+    if([startupService isRegistered]){
+        NSLog(@"Deregistering login item.....");
+        if([startupService unregisterLoginItem]){
+            NSLog(@" success");
+            startupService = nil;
+            
+            return;
+        }else{
+            NSLog(@"deregistration failed!");
+            startupService = nil;
+            
             return;
         }
-        NSLog(@"Service registered");
-
-
-    }
-    
-    if(status == SMAppServiceStatusEnabled){
-        NSLog(@"Unregistering service ...");
-        if([[self smaService] unregisterAndReturnError:&lastError]){
-            NSLog(@"Deregistration failed. Reason: %@",lastError);
+    }else{
+        NSLog(@"Registering login item ...");
+        if([startupService registerLoginItem]){
+            NSLog(@" success");
+            startupService = nil;
+            
+            return;
+        }else{
+            NSLog(@"service registration error.");
+            startupService = nil;
+            
             return;
         }
-        
-        [[_statusItem button] setKeyEquivalent:@""];
-        NSLog(@"Service deregistered.");
     }
     
-    if(status == SMAppServiceStatusRequiresApproval){
-        NSLog(@"Will try to register service");
-
-        NSAlert *simpleAlert = [[NSAlert alloc] init];
-        [simpleAlert setMessageText:@"Budete požádán/a o svolení aktivace služby při startu."];
-        [simpleAlert addButtonWithTitle:@"Rozumím"];
-        [simpleAlert setInformativeText:@""];
-
-        [simpleAlert runModal];
-        
-        NSError *error;
-        if(!(registered = [_smaService registerAndReturnError:&error])){
-            NSLog(@"Registration failed! Reason: %@", error);
-            return;
-        }
-        NSLog(@"Service registered");
-        return;
-    }
-    
-    if(status == SMAppServiceStatusNotRegistered){
-        NSLog(@"Will try to register service");
-        NSError *error;
-        if(!(registered = [_smaService registerAndReturnError:&error])){
-            NSLog(@"Registration failed! Reason: %@", error);
-            return;
-        }
-        NSLog(@"Service registered");
-    }
-
+  /*
 
     NSString *title = registered ? @"Spouštět při startu ✔️" : @"Spouštět při startu";
     
@@ -202,7 +172,8 @@
         [_launchAtLogin setTitle:title];
     }
     NSLog(@"Service status: %@ Status: %ld", title, status);
-
+   
+   */
 }
 
 - (void)setupMenu{

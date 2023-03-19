@@ -13,9 +13,6 @@
 
 @implementation MNSvatek
 
-    @dynamic canScanContacts;
-    @dynamic shouldStartAtLogin;
-
 - (void)loadDefaultSettings
 {
     NSLog(@"Loading default settings from bundle config");
@@ -78,4 +75,9 @@
     
     [NSApp endSheet:settingsWindow];
 }
+
+-(void) setUpMenu{
+    
+}
+
 @end
