@@ -92,12 +92,15 @@
     
     for (NSString *row in rows){
         NSArray* columns = [row componentsSeparatedByString:@";"];
-        NSString *existingName = [_nameDays objectForKey:columns[1]];
+        if([columns count] != 2) continue;
+        NSString *index = columns[1];
+        NSString *name = columns[0];
+        NSString *existingName = [_nameDays objectForKey: index];
         if(existingName != nil){
-            NSString *newName = NSString stringWithFormat:@"%@ a %@",existingName, columns[0];
-            [_nameDays setObject:newName forKey:columns[1]];
+            NSString *newName = [NSString stringWithFormat:@"%@, %@",existingName, name];
+            [_nameDays setObject:newName forKey:index];
         }else
-            [_nameDays setObject:columns[0] forKey:columns[1]];
+            [_nameDays setObject:name forKey:index];
     }
 }
 
