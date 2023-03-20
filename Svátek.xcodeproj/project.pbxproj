@@ -7,10 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		EB0894C529B7478400986CC7 /* MNContacts.m in Sources */ = {isa = PBXBuildFile; fileRef = EB0894C429B7478400986CC7 /* MNContacts.m */; };
-		EB0894C829B747BE00986CC7 /* MNStartup.m in Sources */ = {isa = PBXBuildFile; fileRef = EB0894C729B747BE00986CC7 /* MNStartup.m */; };
-		EB0894CB29B747E000986CC7 /* MNNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = EB0894CA29B747E000986CC7 /* MNNotifications.m */; };
-		EB0894CE29B747FB00986CC7 /* MNSvatek.m in Sources */ = {isa = PBXBuildFile; fileRef = EB0894CD29B747FB00986CC7 /* MNSvatek.m */; };
 		EB33538029AFB886004D2406 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = EB33537F29AFB886004D2406 /* AppDelegate.m */; };
 		EB33538529AFB887004D2406 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EB33538429AFB887004D2406 /* Assets.xcassets */; };
 		EB33538829AFB887004D2406 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EB33538629AFB887004D2406 /* Main.storyboard */; };
@@ -19,14 +15,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		EB0894C329B7478400986CC7 /* MNContacts.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MNContacts.h; sourceTree = "<group>"; };
-		EB0894C429B7478400986CC7 /* MNContacts.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MNContacts.m; sourceTree = "<group>"; };
-		EB0894C629B747BE00986CC7 /* MNStartup.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MNStartup.h; sourceTree = "<group>"; };
-		EB0894C729B747BE00986CC7 /* MNStartup.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MNStartup.m; sourceTree = "<group>"; };
-		EB0894C929B747E000986CC7 /* MNNotifications.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MNNotifications.h; sourceTree = "<group>"; };
-		EB0894CA29B747E000986CC7 /* MNNotifications.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MNNotifications.m; sourceTree = "<group>"; };
-		EB0894CC29B747FB00986CC7 /* MNSvatek.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MNSvatek.h; sourceTree = "<group>"; };
-		EB0894CD29B747FB00986CC7 /* MNSvatek.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MNSvatek.m; sourceTree = "<group>"; };
 		EB33537B29AFB886004D2406 /* Svátek.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Svátek.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB33537E29AFB886004D2406 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		EB33537F29AFB886004D2406 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -69,14 +57,6 @@
 			isa = PBXGroup;
 			children = (
 				EBFA859629B3E8250031E4B1 /* SvátekRelease.entitlements */,
-				EB0894C929B747E000986CC7 /* MNNotifications.h */,
-				EB0894CA29B747E000986CC7 /* MNNotifications.m */,
-				EB0894CC29B747FB00986CC7 /* MNSvatek.h */,
-				EB0894CD29B747FB00986CC7 /* MNSvatek.m */,
-				EB0894C629B747BE00986CC7 /* MNStartup.h */,
-				EB0894C729B747BE00986CC7 /* MNStartup.m */,
-				EB0894C329B7478400986CC7 /* MNContacts.h */,
-				EB0894C429B7478400986CC7 /* MNContacts.m */,
 				EB33537E29AFB886004D2406 /* AppDelegate.h */,
 				EB33537F29AFB886004D2406 /* AppDelegate.m */,
 				EB33538429AFB887004D2406 /* Assets.xcassets */,
@@ -158,12 +138,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EB0894C829B747BE00986CC7 /* MNStartup.m in Sources */,
 				EB33538A29AFB887004D2406 /* main.m in Sources */,
-				EB0894CE29B747FB00986CC7 /* MNSvatek.m in Sources */,
 				EB33538029AFB886004D2406 /* AppDelegate.m in Sources */,
-				EB0894CB29B747E000986CC7 /* MNNotifications.m in Sources */,
-				EB0894C529B7478400986CC7 /* MNContacts.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
