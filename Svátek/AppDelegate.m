@@ -20,15 +20,15 @@
     NSStatusItem *statusItem;
     NSMutableDictionary *nameDays;
     
-    NSString *today;
-    NSString *tomorrow;
-    NSString *dayAfterTomorrow;
+    NSString *todayName;
+    NSString *tomorrowName;
+    NSString *dayAfterTomorrowName;
     
     NSString *lastCheckDate;
     
     NSMenuItem *launchAtLogin;
-    NSMenuItem *tomorrowName;
-    NSMenuItem *tdatName; // TheDayAfterTomorrow Name
+    NSMenuItem *tomorrowItem;
+    NSMenuItem *dayAfterTomorrowItem; // TheDayAfterTomorrow Name
     
     SMAppService *smaService;
     
@@ -188,8 +188,29 @@
 
 }
 
-- (void)setupMenu{
+- (void) setNamesForToday:(NSString*)todayStr dateFormatter:(NSDateFormatter*) dateFormat{
+    if(nameDays == nil){
+        [self setupNameDays];
+    }
     
+    lastCheckDate = nil;
+    lastCheckDate = [NSString stringWithString:todayStr];
+    todayName = [nameDays objectForKey:todayStr];
+    [[statusItem button] setTitle: todayName];
+
+    NSDateComponents* deltaComps = [[NSDateComponents alloc] init];
+    [deltaComps setDay:1];
+    NSString* tomorrowStr = [dateFormat stringFromDate:[[NSCalendar currentCalendar] dateByAddingComponents:deltaComps  toDate:[NSDate date] options:0]];
+    tomorrowName = [NSString stringWithFormat:@"Zítra %@",[nameDays objectForKey:tomorrowStr]];
+
+    [deltaComps setDay:2];
+    NSString* afterTomorrowStr = [dateFormat stringFromDate:[[NSCalendar currentCalendar] dateByAddingComponents:deltaComps  toDate:[NSDate date] options:0]];
+    dayAfterTomorrowName = [NSString stringWithFormat:@"Pozítří %@",[nameDays objectForKey:afterTomorrowStr]];
+
+    nameDays = nil;
+}
+
+- (void)setupMenu{
     NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
     [dateFormat setDateFormat:@"M/d"];
     NSString *todayStr = [dateFormat stringFromDate:[NSDate now]];
@@ -206,24 +227,10 @@
         NSLog(@"Already checked today.");
         return;
     }
-    
-    if(nameDays == nil){
-        [self setupNameDays];
-    }
-    
-    lastCheckDate = nil;
-    lastCheckDate = [NSString stringWithString:todayStr];
-    today = [nameDays objectForKey:todayStr];
-    [[statusItem button] setTitle: today];
 
-    NSDateComponents* deltaComps = [[NSDateComponents alloc] init];
-    [deltaComps setDay:1];
-    NSString* tomorrowStr = [dateFormat stringFromDate:[[NSCalendar currentCalendar] dateByAddingComponents:deltaComps  toDate:[NSDate date] options:0]];
-    tomorrow = [NSString stringWithFormat:@"Zítra %@",[nameDays objectForKey:tomorrowStr]];
-    statusItem.button.toolTip =  tomorrow;
-    [deltaComps setDay:2];
-    NSString* afterTomorrowStr = [dateFormat stringFromDate:[[NSCalendar currentCalendar] dateByAddingComponents:deltaComps  toDate:[NSDate date] options:0]];
-    dayAfterTomorrow = [NSString stringWithFormat:@"Pozítří %@",[nameDays objectForKey:afterTomorrowStr]];
+    [self setNamesForToday:todayStr dateFormatter:dateFormat];
+    
+    statusItem.button.toolTip =  tomorrowName;
     
     SMAppServiceStatus status = [smaService status];
     NSString *title = (status == SMAppServiceStatusEnabled) ? @"Spouštět při startu  ✔️" : @"Spouštět při startu";
@@ -231,16 +238,16 @@
     
     
     NSFont *font=[NSFont boldSystemFontOfSize:[NSFont systemFontSize]];
-    NSMutableAttributedString *attTomorrow = [[NSMutableAttributedString alloc] initWithString:tomorrow];
+    NSMutableAttributedString *attTomorrow = [[NSMutableAttributedString alloc] initWithString:tomorrowName];
     [attTomorrow beginEditing];
-    [attTomorrow addAttribute:NSFontAttributeName value:font range:NSMakeRange(6, [tomorrow length] - 6)];
-    [attTomorrow addAttribute:NSForegroundColorAttributeName value:[NSColor systemRedColor] range:NSMakeRange(6, [tomorrow length] - 6)];
+    [attTomorrow addAttribute:NSFontAttributeName value:font range:NSMakeRange(6, [tomorrowName length] - 6)];
+    [attTomorrow addAttribute:NSForegroundColorAttributeName value:[NSColor systemRedColor] range:NSMakeRange(6, [tomorrowName length] - 6)];
     [attTomorrow endEditing];
 
-    NSMutableAttributedString *attAfterTomorrow = [[NSMutableAttributedString alloc] initWithString:dayAfterTomorrow];
+    NSMutableAttributedString *attAfterTomorrow = [[NSMutableAttributedString alloc] initWithString:dayAfterTomorrowName];
     [attAfterTomorrow beginEditing];
-    [attAfterTomorrow addAttribute:NSFontAttributeName value:font range:NSMakeRange(8, [dayAfterTomorrow length] - 8)];
-    [attAfterTomorrow addAttribute:NSForegroundColorAttributeName value:[NSColor systemOrangeColor] range:NSMakeRange(8, [tomorrow length] - 8)];
+    [attAfterTomorrow addAttribute:NSFontAttributeName value:font range:NSMakeRange(8, [dayAfterTomorrowName length] - 8)];
+    [attAfterTomorrow addAttribute:NSForegroundColorAttributeName value:[NSColor systemOrangeColor] range:NSMakeRange(8, [dayAfterTomorrowName length] - 8)];
     [attAfterTomorrow endEditing];
 
     if(launchAtLogin == nil){
@@ -249,25 +256,25 @@
         [launchAtLogin setTitle:title];
     }
 
-    if(tomorrowName == nil){
-        tomorrowName = [[NSMenuItem alloc] initWithTitle:tomorrow action:nil keyEquivalent:@""];
+    if(tomorrowItem == nil){
+        tomorrowItem = [[NSMenuItem alloc] initWithTitle:tomorrowName action:nil keyEquivalent:@""];
     }
 
-    [tomorrowName setAttributedTitle:attTomorrow];
+    [tomorrowItem setAttributedTitle:attTomorrow];
 
-    if(tdatName == nil){
-        tdatName = [[NSMenuItem alloc] initWithTitle:dayAfterTomorrow action:nil keyEquivalent:@""];
+    if(dayAfterTomorrowItem == nil){
+        dayAfterTomorrowItem = [[NSMenuItem alloc] initWithTitle:dayAfterTomorrowName action:nil keyEquivalent:@""];
     }else{
-        [tdatName setAttributedTitle:attAfterTomorrow];
+        [dayAfterTomorrowItem setAttributedTitle:attAfterTomorrow];
         // we are only updating existing menu so we can leave ...
         return;
     }
 
-    [tdatName setAttributedTitle:attAfterTomorrow];
+    [dayAfterTomorrowItem setAttributedTitle:attAfterTomorrow];
 
     NSMenu *menu = [[NSMenu alloc] init];
-    [menu addItem:tomorrowName];
-    [menu addItem:tdatName];
+    [menu addItem:tomorrowItem];
+    [menu addItem:dayAfterTomorrowItem];
     [menu addItem:[NSMenuItem separatorItem]];
     [menu addItem:launchAtLogin];
     [menu addItemWithTitle:@"Upozornit na svátky z kontaktů" action:@selector(scanContacts:) keyEquivalent:@""];
@@ -361,6 +368,9 @@
     return addrArr;
 }
 
+- (void)showSettings:(id)sender{
+    
+}
 
 - (void)quit:(id)sender{
     [[NSApplication sharedApplication] terminate:self];

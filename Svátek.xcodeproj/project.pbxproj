@@ -12,6 +12,9 @@
 		EB33538829AFB887004D2406 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EB33538629AFB887004D2406 /* Main.storyboard */; };
 		EB33538A29AFB887004D2406 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EB33538929AFB887004D2406 /* main.m */; };
 		EB33539229B003C7004D2406 /* svatky.csv in Resources */ = {isa = PBXBuildFile; fileRef = EB33539129B003C7004D2406 /* svatky.csv */; };
+		EBA4F33229C8FD7400F1B643 /* DefaultSettings.plist in Resources */ = {isa = PBXBuildFile; fileRef = EBA4F33129C8FD7400F1B643 /* DefaultSettings.plist */; };
+		EBA4F33629C9059400F1B643 /* SettingsDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = EBA4F33429C9059400F1B643 /* SettingsDialog.m */; };
+		EBA4F33729C9059400F1B643 /* SettingsDialog.xib in Resources */ = {isa = PBXBuildFile; fileRef = EBA4F33529C9059400F1B643 /* SettingsDialog.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,6 +26,10 @@
 		EB33538929AFB887004D2406 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EB33538B29AFB887004D2406 /* Sva_tek.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sva_tek.entitlements; sourceTree = "<group>"; };
 		EB33539129B003C7004D2406 /* svatky.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = svatky.csv; sourceTree = "<group>"; };
+		EBA4F33129C8FD7400F1B643 /* DefaultSettings.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = DefaultSettings.plist; sourceTree = "<group>"; };
+		EBA4F33329C9059400F1B643 /* SettingsDialog.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SettingsDialog.h; sourceTree = "<group>"; };
+		EBA4F33429C9059400F1B643 /* SettingsDialog.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SettingsDialog.m; sourceTree = "<group>"; };
+		EBA4F33529C9059400F1B643 /* SettingsDialog.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SettingsDialog.xib; sourceTree = "<group>"; };
 		EBFA859629B3E8250031E4B1 /* SvátekRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "SvátekRelease.entitlements"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -40,6 +47,10 @@
 		EB33537229AFB886004D2406 = {
 			isa = PBXGroup;
 			children = (
+				EBA4F33329C9059400F1B643 /* SettingsDialog.h */,
+				EBA4F33429C9059400F1B643 /* SettingsDialog.m */,
+				EBA4F33529C9059400F1B643 /* SettingsDialog.xib */,
+				EBA4F33129C8FD7400F1B643 /* DefaultSettings.plist */,
 				EB33537D29AFB886004D2406 /* Svátek */,
 				EB33537C29AFB886004D2406 /* Products */,
 			);
@@ -126,6 +137,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				EB33538529AFB887004D2406 /* Assets.xcassets in Resources */,
+				EBA4F33729C9059400F1B643 /* SettingsDialog.xib in Resources */,
+				EBA4F33229C8FD7400F1B643 /* DefaultSettings.plist in Resources */,
 				EB33539229B003C7004D2406 /* svatky.csv in Resources */,
 				EB33538829AFB887004D2406 /* Main.storyboard in Resources */,
 			);
@@ -140,6 +153,7 @@
 			files = (
 				EB33538A29AFB887004D2406 /* main.m in Sources */,
 				EB33538029AFB886004D2406 /* AppDelegate.m in Sources */,
+				EBA4F33629C9059400F1B643 /* SettingsDialog.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
