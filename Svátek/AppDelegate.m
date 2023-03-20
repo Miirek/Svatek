@@ -13,53 +13,52 @@
 
 
 @interface AppDelegate ()
-
-@property (strong, nonatomic) NSStatusItem *statusItem;
-@property (strong, nonatomic) NSMutableDictionary *nameDays;
-
-@property (strong, nonatomic) NSString *today;
-@property (strong, nonatomic) NSString *tomorrow;
-@property (strong, nonatomic) NSString *dayAfterTomorrow;
-
-@property (strong, nonatomic) NSString *lastCheckDate;
-
-@property (strong, nonatomic) NSMenuItem *launchAtLogin;
-@property (strong, nonatomic) NSMenuItem *tomorrowName;
-@property (strong, nonatomic) NSMenuItem *tdatName; // TheDayAfterTomorrow Name
-
-@property (strong, nonatomic) SMAppService *smaService;
-
-@property (strong, nonatomic) CNContactStore *contacts;
-@property (strong, nonatomic) UNUserNotificationCenter *notifications;
-
 @end
 
-@implementation AppDelegate
+@implementation AppDelegate{
+    
+    NSStatusItem *statusItem;
+    NSMutableDictionary *nameDays;
+    
+    NSString *today;
+    NSString *tomorrow;
+    NSString *dayAfterTomorrow;
+    
+    NSString *lastCheckDate;
+    
+    NSMenuItem *launchAtLogin;
+    NSMenuItem *tomorrowName;
+    NSMenuItem *tdatName; // TheDayAfterTomorrow Name
+    
+    SMAppService *smaService;
+    
+    CNContactStore *contacts;
+    UNUserNotificationCenter *notifications;
+}
 
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 
-    _smaService = [SMAppService mainAppService];
-    SMAppServiceStatus result = [_smaService status];
+    smaService = [SMAppService mainAppService];
+    SMAppServiceStatus result = [smaService status];
 
-
-    _contacts = [[CNContactStore alloc] init];
-    _notifications = [UNUserNotificationCenter currentNotificationCenter];
-    [_notifications getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * settings) {
+    contacts = [[CNContactStore alloc] init];
+    notifications = [UNUserNotificationCenter currentNotificationCenter];
+    [notifications getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * settings) {
         NSLog(@"Settings: %@", settings);
     }];
 
     CNAuthorizationStatus cnStatus = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
     NSLog(@"Contacts %ld",cnStatus);
-    self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
-    _statusItem.button.image = [NSImage imageNamed:@"MenuRose"];
-    _statusItem.button.image.prefersColorMatch = YES;
+    statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
+    statusItem.button.image = [NSImage imageNamed:@"MenuRose"];
+    statusItem.button.image.prefersColorMatch = YES;
     [self setupNameDays];
 
-    _statusItem.button.title=@"Svátek má ...";
-    [_statusItem.button.image setTemplate:YES];
+    statusItem.button.title=@"Svátek má ...";
+    [[[statusItem button]image] setTemplate:YES];
 
-    _statusItem.button.cell.highlighted = NO;
+    [[[statusItem button] cell] setHighlighted:NO];
     
     // [[_statusItem button] setAction:@selector(itemClicked:)];
     
@@ -88,19 +87,19 @@
     NSURL *svatkyUrl = [[NSBundle mainBundle] URLForResource:@"svatky" withExtension:@"csv"];
     NSString* fileContents = [NSString stringWithContentsOfURL:svatkyUrl encoding:NSUTF8StringEncoding error:&error];
     NSArray* rows = [fileContents componentsSeparatedByString:@"\r\n"];
-    _nameDays = [[NSMutableDictionary alloc ] initWithCapacity:rows.count];
+    nameDays = [[NSMutableDictionary alloc ] initWithCapacity:rows.count];
     
     for (NSString *row in rows){
         NSArray* columns = [row componentsSeparatedByString:@";"];
         if([columns count] != 2) continue;
         NSString *index = columns[1];
         NSString *name = columns[0];
-        NSString *existingName = [_nameDays objectForKey: index];
+        NSString *existingName = [nameDays objectForKey: index];
         if(existingName != nil){
             NSString *newName = [NSString stringWithFormat:@"%@, %@",existingName, name];
-            [_nameDays setObject:newName forKey:index];
+            [nameDays setObject:newName forKey:index];
         }else
-            [_nameDays setObject:name forKey:index];
+            [nameDays setObject:name forKey:index];
     }
 }
 
@@ -119,7 +118,7 @@
 }
 
 -(void)tryRegisterLaunchLogin:(id)sender{
-    SMAppServiceStatus status = [_smaService status];
+    SMAppServiceStatus status = [smaService status];
     NSLog(@"Status: %ld", (long)status);
     NSError *lastError;
     BOOL registered = NO;
@@ -128,7 +127,7 @@
         NSLog(@"WTF - status not found??");
         NSLog(@"Will try to register service");
         NSError *error;
-        if(!(registered = [_smaService registerAndReturnError:&error])){
+        if(!(registered = [smaService registerAndReturnError:&error])){
             NSLog(@"Registration failed! Reason: %@", error);
             return;
         }
@@ -139,12 +138,12 @@
     
     if(status == SMAppServiceStatusEnabled){
         NSLog(@"Unregistering service ...");
-        if([[self smaService] unregisterAndReturnError:&lastError]){
+        if([smaService unregisterAndReturnError:&lastError]){
             NSLog(@"Deregistration failed. Reason: %@",lastError);
             return;
         }
         
-        [[_statusItem button] setKeyEquivalent:@""];
+        [[statusItem button] setKeyEquivalent:@""];
         NSLog(@"Service deregistered.");
     }
     
@@ -159,7 +158,7 @@
         [simpleAlert runModal];
         
         NSError *error;
-        if(!(registered = [_smaService registerAndReturnError:&error])){
+        if(!(registered = [smaService registerAndReturnError:&error])){
             NSLog(@"Registration failed! Reason: %@", error);
             return;
         }
@@ -170,7 +169,7 @@
     if(status == SMAppServiceStatusNotRegistered){
         NSLog(@"Will try to register service");
         NSError *error;
-        if(!(registered = [_smaService registerAndReturnError:&error])){
+        if(!(registered = [smaService registerAndReturnError:&error])){
             NSLog(@"Registration failed! Reason: %@", error);
             return;
         }
@@ -180,10 +179,10 @@
 
     NSString *title = registered ? @"Spouštět při startu ✔️" : @"Spouštět při startu";
     
-    if(_launchAtLogin == nil){
-        _launchAtLogin = [[NSMenuItem alloc] initWithTitle:title action:@selector(tryRegisterLaunchLogin:)keyEquivalent:@""];
+    if(launchAtLogin == nil){
+        launchAtLogin = [[NSMenuItem alloc] initWithTitle:title action:@selector(tryRegisterLaunchLogin:)keyEquivalent:@""];
     }else{
-        [_launchAtLogin setTitle:title];
+        [launchAtLogin setTitle:title];
     }
     NSLog(@"Service status: %@ Status: %ld", title, status);
 
@@ -195,93 +194,93 @@
     [dateFormat setDateFormat:@"M/d"];
     NSString *todayStr = [dateFormat stringFromDate:[NSDate now]];
     
-    if([todayStr isEqualToString:_lastCheckDate]){
-        SMAppServiceStatus status = [_smaService status];
+    if([todayStr isEqualToString:lastCheckDate]){
+        SMAppServiceStatus status = [smaService status];
         NSString *title = (status == SMAppServiceStatusEnabled) ? @"Spouštět při startu  ✔️" : @"Spouštět při startu";
         NSLog(@"Service status: %ld", status);
-        if(_launchAtLogin == nil){
-            _launchAtLogin = [[NSMenuItem alloc] initWithTitle:title action:@selector(tryRegisterLaunchLogin:)keyEquivalent:@""];
+        if(launchAtLogin == nil){
+            launchAtLogin = [[NSMenuItem alloc] initWithTitle:title action:@selector(tryRegisterLaunchLogin:)keyEquivalent:@""];
         }else{
-            [_launchAtLogin setTitle:title];
+            [launchAtLogin setTitle:title];
         }
         NSLog(@"Already checked today.");
         return;
     }
     
-    if(_nameDays == nil){
+    if(nameDays == nil){
         [self setupNameDays];
     }
     
-    _lastCheckDate = nil;
-    _lastCheckDate = [NSString stringWithString:todayStr];
-    _today = [_nameDays objectForKey:todayStr];
-    _statusItem.button.title=_today;
+    lastCheckDate = nil;
+    lastCheckDate = [NSString stringWithString:todayStr];
+    today = [nameDays objectForKey:todayStr];
+    [[statusItem button] setTitle: today];
 
     NSDateComponents* deltaComps = [[NSDateComponents alloc] init];
     [deltaComps setDay:1];
     NSString* tomorrowStr = [dateFormat stringFromDate:[[NSCalendar currentCalendar] dateByAddingComponents:deltaComps  toDate:[NSDate date] options:0]];
-    _tomorrow = [NSString stringWithFormat:@"Zítra %@",[_nameDays objectForKey:tomorrowStr]];
-    _statusItem.button.toolTip =  _tomorrow;
+    tomorrow = [NSString stringWithFormat:@"Zítra %@",[nameDays objectForKey:tomorrowStr]];
+    statusItem.button.toolTip =  tomorrow;
     [deltaComps setDay:2];
     NSString* afterTomorrowStr = [dateFormat stringFromDate:[[NSCalendar currentCalendar] dateByAddingComponents:deltaComps  toDate:[NSDate date] options:0]];
-    _dayAfterTomorrow = [NSString stringWithFormat:@"Pozítří %@",[_nameDays objectForKey:afterTomorrowStr]];
+    dayAfterTomorrow = [NSString stringWithFormat:@"Pozítří %@",[nameDays objectForKey:afterTomorrowStr]];
     
-    SMAppServiceStatus status = [_smaService status];
+    SMAppServiceStatus status = [smaService status];
     NSString *title = (status == SMAppServiceStatusEnabled) ? @"Spouštět při startu  ✔️" : @"Spouštět při startu";
     NSLog(@"Service status: %ld", status);
     
     
     NSFont *font=[NSFont boldSystemFontOfSize:[NSFont systemFontSize]];
-    NSMutableAttributedString *attTomorrow = [[NSMutableAttributedString alloc] initWithString:_tomorrow];
+    NSMutableAttributedString *attTomorrow = [[NSMutableAttributedString alloc] initWithString:tomorrow];
     [attTomorrow beginEditing];
-    [attTomorrow addAttribute:NSFontAttributeName value:font range:NSMakeRange(6, [_tomorrow length] - 6)];
-    [attTomorrow addAttribute:NSForegroundColorAttributeName value:[NSColor systemRedColor] range:NSMakeRange(6, [_tomorrow length] - 6)];
+    [attTomorrow addAttribute:NSFontAttributeName value:font range:NSMakeRange(6, [tomorrow length] - 6)];
+    [attTomorrow addAttribute:NSForegroundColorAttributeName value:[NSColor systemRedColor] range:NSMakeRange(6, [tomorrow length] - 6)];
     [attTomorrow endEditing];
 
-    NSMutableAttributedString *attAfterTomorrow = [[NSMutableAttributedString alloc] initWithString:_dayAfterTomorrow];
+    NSMutableAttributedString *attAfterTomorrow = [[NSMutableAttributedString alloc] initWithString:dayAfterTomorrow];
     [attAfterTomorrow beginEditing];
-    [attAfterTomorrow addAttribute:NSFontAttributeName value:font range:NSMakeRange(8, [_dayAfterTomorrow length] - 8)];
-    [attAfterTomorrow addAttribute:NSForegroundColorAttributeName value:[NSColor systemOrangeColor] range:NSMakeRange(8, [_tomorrow length] - 8)];
+    [attAfterTomorrow addAttribute:NSFontAttributeName value:font range:NSMakeRange(8, [dayAfterTomorrow length] - 8)];
+    [attAfterTomorrow addAttribute:NSForegroundColorAttributeName value:[NSColor systemOrangeColor] range:NSMakeRange(8, [tomorrow length] - 8)];
     [attAfterTomorrow endEditing];
 
-    if(_launchAtLogin == nil){
-        _launchAtLogin = [[NSMenuItem alloc] initWithTitle:title action:@selector(tryRegisterLaunchLogin:)keyEquivalent:@""];
+    if(launchAtLogin == nil){
+        launchAtLogin = [[NSMenuItem alloc] initWithTitle:title action:@selector(tryRegisterLaunchLogin:)keyEquivalent:@""];
     }else{
-        [_launchAtLogin setTitle:title];
+        [launchAtLogin setTitle:title];
     }
 
-    if(_tomorrowName == nil){
-        _tomorrowName = [[NSMenuItem alloc] initWithTitle:_tomorrow action:nil keyEquivalent:@""];
+    if(tomorrowName == nil){
+        tomorrowName = [[NSMenuItem alloc] initWithTitle:tomorrow action:nil keyEquivalent:@""];
     }
 
-    [_tomorrowName setAttributedTitle:attTomorrow];
+    [tomorrowName setAttributedTitle:attTomorrow];
 
-    if(_tdatName == nil){
-        _tdatName = [[NSMenuItem alloc] initWithTitle:_dayAfterTomorrow action:nil keyEquivalent:@""];
+    if(tdatName == nil){
+        tdatName = [[NSMenuItem alloc] initWithTitle:dayAfterTomorrow action:nil keyEquivalent:@""];
     }else{
-        [_tdatName setAttributedTitle:attAfterTomorrow];
+        [tdatName setAttributedTitle:attAfterTomorrow];
         // we are only updating existing menu so we can leave ...
         return;
     }
 
-    [_tdatName setAttributedTitle:attAfterTomorrow];
+    [tdatName setAttributedTitle:attAfterTomorrow];
 
     NSMenu *menu = [[NSMenu alloc] init];
-    [menu addItem:_tomorrowName];
-    [menu addItem:_tdatName];
+    [menu addItem:tomorrowName];
+    [menu addItem:tdatName];
     [menu addItem:[NSMenuItem separatorItem]];
-    [menu addItem:_launchAtLogin];
+    [menu addItem:launchAtLogin];
     [menu addItemWithTitle:@"Upozornit na svátky z kontaktů" action:@selector(scanContacts:) keyEquivalent:@""];
     [menu addItemWithTitle:@"O aplikaci" action:@selector(about:) keyEquivalent:@""];
     [menu addItem:[NSMenuItem separatorItem]];
     [menu addItemWithTitle:@"Ukončit" action:@selector(quit:) keyEquivalent:@""];
     
-    NSMenu *removed = _statusItem.menu;
+    NSMenu *removed = statusItem.menu;
   
-    _statusItem.menu = menu;
+    statusItem.menu = menu;
     
-    [_nameDays removeAllObjects];
-    _nameDays = nil;
+    [nameDays removeAllObjects];
+    nameDays = nil;
     
     removed = nil;
 }
@@ -300,7 +299,7 @@
 
              [simpleAlert runModal];
 
-             CNContactStore * contactStore = _contacts;
+             CNContactStore * contactStore = contacts;
              [contactStore requestAccessForEntityType:entityType completionHandler:^(BOOL granted, NSError * _Nullable error) {
                  if(granted){
                      [self getAllContact];
