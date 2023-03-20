@@ -9,7 +9,7 @@
 #import <ServiceManagement/SMAppService.h>
 #import <Contacts/Contacts.h>
 #import <UserNotifications/UserNotifications.h>
-
+#import "SettingsDialog.h"
 
 
 @interface AppDelegate ()
@@ -369,6 +369,13 @@
 }
 
 - (void)showSettings:(id)sender{
+    SettingsDialog *settingsDlg = [[SettingsDialog alloc] initWithWindowNibName:@"SettingsDialog" owner:self];
+//    MNSettings *settingsDlg = [[MNSettings alloc]  initWithWindowNibName:NSStringFromClass([self class])];
+    NSWindow *settingsWindow = [settingsDlg window];
+    [NSApp runModalForWindow:settingsWindow];
+    NSLog(@"Modal sheet ended!");
+    
+    [NSApp endSheet:settingsWindow];
     
 }
 

@@ -10,7 +10,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SettingsDialog : NSWindowController
-
+@property IBOutlet NSWindow *window;
+@property (nonatomic, strong, readwrite) NSDictionary *nameDays;
 @end
 
 NS_ASSUME_NONNULL_END
