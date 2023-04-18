@@ -19,6 +19,7 @@
     
     NSStatusItem *statusItem;
     NSMutableDictionary *nameDays;
+    bool hilite;
     
     NSString *todayName;
     NSString *tomorrowName;
@@ -27,9 +28,10 @@
     NSString *lastCheckDate;
     
     NSMenuItem *launchAtLogin;
+    NSMenuItem *settings;
     NSMenuItem *tomorrowItem;
     NSMenuItem *dayAfterTomorrowItem; // TheDayAfterTomorrow Name
-    
+
     SMAppService *smaService;
     
     CNContactStore *contacts;
@@ -50,18 +52,7 @@
 
     CNAuthorizationStatus cnStatus = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
     NSLog(@"Contacts %ld",cnStatus);
-    statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
-    statusItem.button.image = [NSImage imageNamed:@"MenuRose"];
-    statusItem.button.image.prefersColorMatch = YES;
-    [self setupNameDays];
-
-    statusItem.button.title=@"Svátek má ...";
-    [[[statusItem button]image] setTemplate:YES];
-
-    [[[statusItem button] cell] setHighlighted:NO];
-    
-    // [[_statusItem button] setAction:@selector(itemClicked:)];
-    
+    [self setupStatusBarItem];
     [self setupMenu];
     [NSTimer scheduledTimerWithTimeInterval:60.0
         target:self
@@ -80,8 +71,21 @@
 -(void)scanContacts:(id)sender{
     [self contactScan];
 }
+-(void)setupStatusBarItem{
+    statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
+    statusItem.button.image = [NSImage imageNamed:@"MenuRose"];
+    statusItem.button.image.prefersColorMatch = YES;
+    [self setupNameDays];
 
--(void)setupNameDays{
+    statusItem.button.title=@"Svátek má ...";
+    [[[statusItem button]image] setTemplate:YES];
+
+    [[[statusItem button] cell] setHighlighted:NO];
+    
+    // [[_statusItem button] setAction:@selector(itemClicked:)];
+}
+
+-(void)loadDefaultNameDays{
     NSError *error = nil;
     
     NSURL *svatkyUrl = [[NSBundle mainBundle] URLForResource:@"svatky" withExtension:@"csv"];
@@ -94,13 +98,30 @@
         if([columns count] != 2) continue;
         NSString *index = columns[1];
         NSString *name = columns[0];
-        NSString *existingName = [nameDays objectForKey: index];
+        NSString *existingName = [[nameDays objectForKey: index] objectForKey:@"name"];
         if(existingName != nil){
             NSString *newName = [NSString stringWithFormat:@"%@, %@",existingName, name];
-            [nameDays setObject:newName forKey:index];
-        }else
-            [nameDays setObject:name forKey:index];
+            //[nameDays setObject:newName forKey:index];
+            [nameDays setObject:
+             [NSDictionary dictionaryWithObjectsAndKeys:
+              newName,@"name",
+              index,@"date",
+              [NSNumber numberWithBool:NO],@"hilite",
+              nil] forKey:index];
+        }else{
+            //[nameDays setObject:name forKey:index];
+            [nameDays setObject:
+             [NSDictionary dictionaryWithObjectsAndKeys:
+              name,@"name",
+              index,@"date",
+              [NSNumber numberWithBool:NO],@"hilite",
+              nil] forKey:index];
+        }
     }
+}
+
+-(void)setupNameDays{
+    [self loadDefaultNameDays];
 }
 
 -(void)about:(id)sender{
@@ -114,7 +135,6 @@
     [simpleAlert setInformativeText:@"Ikona aplikace pochází z\nhttps://www.vecteezy.com/"];
     
     [simpleAlert runModal];
-
 }
 
 -(void)tryRegisterLaunchLogin:(id)sender{
@@ -192,20 +212,23 @@
     if(nameDays == nil){
         [self setupNameDays];
     }
-    
+
+    hilite = false;
     lastCheckDate = nil;
     lastCheckDate = [NSString stringWithString:todayStr];
-    todayName = [nameDays objectForKey:todayStr];
+    todayName = [[nameDays objectForKey:todayStr] objectForKey:@"name"];
     [[statusItem button] setTitle: todayName];
-
+    
+    hilite = [[nameDays objectForKey:todayStr] boolForKey:@"hilite"];
+    [[[statusItem button]image] setTemplate:!hilite];
     NSDateComponents* deltaComps = [[NSDateComponents alloc] init];
     [deltaComps setDay:1];
     NSString* tomorrowStr = [dateFormat stringFromDate:[[NSCalendar currentCalendar] dateByAddingComponents:deltaComps  toDate:[NSDate date] options:0]];
-    tomorrowName = [NSString stringWithFormat:@"Zítra %@",[nameDays objectForKey:tomorrowStr]];
+    tomorrowName = [NSString stringWithFormat:@"Zítra %@",[[nameDays objectForKey:tomorrowStr]objectForKey: @"name"]];
 
     [deltaComps setDay:2];
     NSString* afterTomorrowStr = [dateFormat stringFromDate:[[NSCalendar currentCalendar] dateByAddingComponents:deltaComps  toDate:[NSDate date] options:0]];
-    dayAfterTomorrowName = [NSString stringWithFormat:@"Pozítří %@",[nameDays objectForKey:afterTomorrowStr]];
+    dayAfterTomorrowName = [NSString stringWithFormat:@"Pozítří %@",[[nameDays objectForKey:afterTomorrowStr] objectForKey: @"name"] ];
 
     nameDays = nil;
 }
