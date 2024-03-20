@@ -45,6 +45,7 @@
     SMAppServiceStatus result = [smaService status];
 
     contacts = [[CNContactStore alloc] init];
+    
     notifications = [UNUserNotificationCenter currentNotificationCenter];
     [notifications getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * settings) {
         NSLog(@"Settings: %@", settings);
@@ -63,6 +64,17 @@
     NSLog(@"Error - %@; status: %ld ", error,result);
 
 }
+
+- (void)applicationWillTerminate:(NSNotification *)aNotification {
+    // Insert code here to tear down your application
+}
+
+
+- (BOOL)applicationSupportsSecureRestorableState:(NSApplication *)app {
+    return YES;
+}
+
+/** ------------------------------ ------------------------------ ------------------------------ ------------------------------ ------------------------------ ------------------------------ */
 
 - (void)updateTitle:(id)sender {
     [self setupMenu];
@@ -121,7 +133,23 @@
 }
 
 -(void)setupNameDays{
-    [self loadDefaultNameDays];
+    if(![self loadUserPreferences]){
+        NSLog(@"Creating user preferences");
+        [self loadDefaultNameDays];
+        [[NSUserDefaults standardUserDefaults] setObject:nameDays forKey:@"nameDays"];
+    }
+}
+
+-(bool)loadUserPreferences{
+    nameDays = [[NSUserDefaults standardUserDefaults] objectForKey:@"nameDays"];
+    
+    if(nameDays != nil){
+
+        NSLog(@"Loaded prefs: %lu names loaded", (unsigned long)[nameDays count]);
+        return YES;
+
+    }     NSLog(@"User preferences doesnt exists!");
+    return NO;
 }
 
 -(void)about:(id)sender{
@@ -301,6 +329,7 @@
     [menu addItem:[NSMenuItem separatorItem]];
     [menu addItem:launchAtLogin];
     [menu addItemWithTitle:@"Upozornit na svátky z kontaktů" action:@selector(scanContacts:) keyEquivalent:@""];
+    [menu addItemWithTitle:@"Nastavení" action:@selector(showSettingsDialog:) keyEquivalent:@""];
     [menu addItemWithTitle:@"O aplikaci" action:@selector(about:) keyEquivalent:@""];
     [menu addItem:[NSMenuItem separatorItem]];
     [menu addItemWithTitle:@"Ukončit" action:@selector(quit:) keyEquivalent:@""];
@@ -309,8 +338,8 @@
   
     statusItem.menu = menu;
     
-    [nameDays removeAllObjects];
-    nameDays = nil;
+//    [nameDays removeAllObjects];
+//    nameDays = nil;
     
     removed = nil;
 }
@@ -340,7 +369,11 @@
          }
         else if( [CNContactStore authorizationStatusForEntityType:entityType]== CNAuthorizationStatusAuthorized)
         {
-            [self getAllContact];
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^
+            {
+                [self getAllContact];
+            });
+            
         }else if( [CNContactStore authorizationStatusForEntityType:entityType]== CNAuthorizationStatusDenied){
             NSLog(@"Access to contacs denied!");
         }
@@ -357,6 +390,7 @@
         [addressBook containersMatchingPredicate:[CNContainer predicateForContainersWithIdentifiers: @[addressBook.defaultContainerIdentifier]] error:&contactError];
         NSArray * keysToFetch =@[CNContactEmailAddressesKey, CNContactPhoneNumbersKey, CNContactFamilyNameKey, CNContactGivenNameKey, CNContactPostalAddressesKey];
         CNContactFetchRequest * request = [[CNContactFetchRequest alloc]initWithKeysToFetch:keysToFetch];
+        
         BOOL success = [addressBook enumerateContactsWithFetchRequest:request error:&contactError usingBlock:^(CNContact * __nonnull contact, BOOL * __nonnull stop){
             [self parseContactWithContact:contact];
         }];
@@ -406,14 +440,18 @@
     [[NSApplication sharedApplication] terminate:self];
 }
 
-- (void)applicationWillTerminate:(NSNotification *)aNotification {
-    // Insert code here to tear down your application
+-(void) showSettingsDialog:(id)sender{
+    SettingsDialog *settingsDlg = [[SettingsDialog alloc]  initWithWindowNibName:@"SettingsDialog"];
+//    MNSettings *settingsDlg = [[MNSettings alloc]  initWithWindowNibName:NSStringFromClass([self class])];
+    if(!nameDays){
+        [self setupNameDays];
+    }
+    [settingsDlg setNameDays: nameDays];
+    NSWindow *settingsWindow = [settingsDlg window];
+    [NSApp runModalForWindow:settingsWindow];
+    NSLog(@"Modal sheet ended!");
+    
+    [NSApp endSheet:settingsWindow];
 }
-
-
-- (BOOL)applicationSupportsSecureRestorableState:(NSApplication *)app {
-    return YES;
-}
-
 
 @end
