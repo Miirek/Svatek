@@ -1,457 +1,489 @@
 //
 //  AppDelegate.m
-//  Svátek
+//  Svatek
 //
-//  Created by Mirek Novak on 01.03.2023.
+//  Created by Mirek Novak on 01.03.2023. Refaktoring 2025-07
 //
-// ikona: https://www.vecteezy.com/vector-art/7528227-flower-icon-flower-rose-vector-design-illustration-flower-icon-simple-sign-rose-beauty-design
-#import "AppDelegate.h"
-#import <ServiceManagement/SMAppService.h>
-#import <Contacts/Contacts.h>
-#import <UserNotifications/UserNotifications.h>
-#import "SettingsDialog.h"
 
+#import "AppDelegate.h"
+#import "SettingsDialog.h"
+#import <QuartzCore/QuartzCore.h>
 
 @interface AppDelegate ()
 @end
 
-@implementation AppDelegate{
-    
-    NSStatusItem *statusItem;
-    NSMutableDictionary *nameDays;
-    bool hilite;
-    
-    NSString *todayName;
-    NSString *tomorrowName;
-    NSString *dayAfterTomorrowName;
-    
-    NSString *lastCheckDate;
-    
-    NSMenuItem *launchAtLogin;
-    NSMenuItem *settings;
-    NSMenuItem *tomorrowItem;
-    NSMenuItem *dayAfterTomorrowItem; // TheDayAfterTomorrow Name
+BOOL contacsRead = NO;
 
-    SMAppService *smaService;
-    
-    CNContactStore *contacts;
-    UNUserNotificationCenter *notifications;
-}
-
+@implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    self.smaService = [SMAppService mainAppService];
+    SMAppServiceStatus result = [self.smaService status];
 
-    smaService = [SMAppService mainAppService];
-    SMAppServiceStatus result = [smaService status];
-
-    contacts = [[CNContactStore alloc] init];
-    
-    notifications = [UNUserNotificationCenter currentNotificationCenter];
-    [notifications getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * settings) {
-        NSLog(@"Settings: %@", settings);
+    self.contacts = [[CNContactStore alloc] init];
+    self.notifications = [UNUserNotificationCenter currentNotificationCenter];
+    [self.notifications getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings) {
+        // Handle settings if needed
     }];
 
-    CNAuthorizationStatus cnStatus = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
-    NSLog(@"Contacts %ld",cnStatus);
+    // Setup UI first - this loads the name days from CSV
     [self setupStatusBarItem];
-    [self setupMenu];
-    [NSTimer scheduledTimerWithTimeInterval:60.0
-        target:self
-        selector:@selector(updateTitle:)
-        userInfo:nil
-        repeats:YES];
-    NSError *error;
-    NSLog(@"Error - %@; status: %ld ", error,result);
 
+    CNAuthorizationStatus cnStatus = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
+    if (cnStatus == CNAuthorizationStatusNotDetermined) {
+        [self.contacts requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError * _Nullable error) {
+            NSLog(@"Contacts access: %@", granted ? @"granted" : @"denied");
+            if (granted) {
+                [self scanContactsMatchingNameDaysToDictionary];
+            } else {
+                // No permission, setup menu without contact matching
+                [self setupMenu];
+            }
+        }];
+    } else if(cnStatus == CNAuthorizationStatusAuthorized){
+        NSLog(@"Contacts authorization: Authorized");
+        [self scanContactsMatchingNameDaysToDictionary];
+    } else {
+        // Not authorized, setup menu without contact matching
+        NSLog(@"Contacts not authorized, status: %ld", (long)cnStatus);
+        [self setupMenu];
+    }
+
+    [NSTimer scheduledTimerWithTimeInterval:10.0
+                                     target:self
+                                   selector:@selector(updateTitle:)
+                                   userInfo:nil
+                                    repeats:YES];
+
+    NSLog(@"App started; service status: %ld", (long)result);
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
-    // Insert code here to tear down your application
+    // Cleanup
+    [self stopGlowAnimation];
+    [self stopLetterGlowAnimation];
 }
-
 
 - (BOOL)applicationSupportsSecureRestorableState:(NSApplication *)app {
     return YES;
 }
 
-/** ------------------------------ ------------------------------ ------------------------------ ------------------------------ ------------------------------ ------------------------------ */
-
 - (void)updateTitle:(id)sender {
     [self setupMenu];
 }
 
--(void)scanContacts:(id)sender{
-    [self contactScan];
-}
--(void)setupStatusBarItem{
-    statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
-    statusItem.button.image = [NSImage imageNamed:@"MenuRose"];
-    statusItem.button.image.prefersColorMatch = YES;
+- (void)setupStatusBarItem {
+    self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
+    self.statusItem.button.image = [NSImage imageNamed:@"MenuRose"];
+    self.statusItem.button.image.prefersColorMatch = YES;
+    self.statusItem.button.title = @"Svátek má ...";
+    self.statusItem.button.image.template = YES;
+
     [self setupNameDays];
-
-    statusItem.button.title=@"Svátek má ...";
-    [[[statusItem button]image] setTemplate:YES];
-
-    [[[statusItem button] cell] setHighlighted:NO];
-    
-    // [[_statusItem button] setAction:@selector(itemClicked:)];
+    NSLog(@"Status bar item set up!");
 }
 
--(void)loadDefaultNameDays{
+- (void)loadDefaultNameDays {
     NSError *error = nil;
-    
     NSURL *svatkyUrl = [[NSBundle mainBundle] URLForResource:@"svatky" withExtension:@"csv"];
-    NSString* fileContents = [NSString stringWithContentsOfURL:svatkyUrl encoding:NSUTF8StringEncoding error:&error];
-    NSArray* rows = [fileContents componentsSeparatedByString:@"\r\n"];
-    nameDays = [[NSMutableDictionary alloc ] initWithCapacity:rows.count];
-    
-    for (NSString *row in rows){
-        NSArray* columns = [row componentsSeparatedByString:@";"];
-        if([columns count] != 2) continue;
+    NSString *fileContents = [NSString stringWithContentsOfURL:svatkyUrl encoding:NSUTF8StringEncoding error:&error];
+
+    if (!fileContents) {
+        NSLog(@"Chyba při načítání svátků: %@", error);
+        return;
+    }
+
+    NSArray *rows = [fileContents componentsSeparatedByString:@"\r\n"];
+    self.nameDays = [NSMutableDictionary dictionaryWithCapacity:rows.count];
+
+    for (NSString *row in rows) {
+        if (row.length == 0) continue;
+        NSArray *columns = [row componentsSeparatedByString:@";"];
+        if (columns.count != 2) continue;
+
         NSString *index = columns[1];
         NSString *name = columns[0];
-        NSString *existingName = [[nameDays objectForKey: index] objectForKey:@"name"];
-        if(existingName != nil){
-            NSString *newName = [NSString stringWithFormat:@"%@, %@",existingName, name];
-            //[nameDays setObject:newName forKey:index];
-            [nameDays setObject:
-             [NSDictionary dictionaryWithObjectsAndKeys:
-              newName,@"name",
-              index,@"date",
-              [NSNumber numberWithBool:NO],@"hilite",
-              nil] forKey:index];
-        }else{
-            //[nameDays setObject:name forKey:index];
-            [nameDays setObject:
-             [NSDictionary dictionaryWithObjectsAndKeys:
-              name,@"name",
-              index,@"date",
-              [NSNumber numberWithBool:NO],@"hilite",
-              nil] forKey:index];
+
+        NSDictionary *existing = self.nameDays[index];
+        NSString *existingName = existing[@"name"];
+
+        if (existingName) {
+            NSString *newName = [NSString stringWithFormat:@"%@ ∙ %@", existingName, name];
+            self.nameDays[index] = @{ @"name": newName, @"date": index, @"hilite": @NO };
+        } else {
+            self.nameDays[index] = @{ @"name": name, @"date": index, @"hilite": @NO };
         }
     }
 }
 
--(void)setupNameDays{
-    if(![self loadUserPreferences]){
+- (void)setupNameDays {
+    if (![self loadUserPreferences]) {
         NSLog(@"Creating user preferences");
         [self loadDefaultNameDays];
-        [[NSUserDefaults standardUserDefaults] setObject:nameDays forKey:@"nameDays"];
+        [[NSUserDefaults standardUserDefaults] setObject:self.nameDays forKey:@"nameDays"];
     }
 }
 
--(bool)loadUserPreferences{
-    nameDays = [[NSUserDefaults standardUserDefaults] objectForKey:@"nameDays"];
-    
-    if(nameDays != nil){
-
-        NSLog(@"Loaded prefs: %lu names loaded", (unsigned long)[nameDays count]);
+- (BOOL)loadUserPreferences {
+    return NO;
+    self.nameDays = [[NSUserDefaults standardUserDefaults] objectForKey:@"nameDays"];
+    if (self.nameDays) {
+        NSLog(@"Loaded prefs: %lu names loaded", (unsigned long)self.nameDays.count);
         return YES;
-
-    }     NSLog(@"User preferences doesnt exists!");
+    }
+    NSLog(@"User preferences don't exist!");
     return NO;
 }
 
--(void)about:(id)sender{
-    NSString *copyright =[NSString stringWithFormat:@"Svátek v.%@, build:%@\n©️2023 Mirek",
-                          [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"],
-                          [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]];
-   
-    NSAlert *simpleAlert = [[NSAlert alloc] init];
-    [simpleAlert setMessageText:copyright];
-    [simpleAlert addButtonWithTitle:@"Budiž"];
-    [simpleAlert setInformativeText:@"Ikona aplikace pochází z\nhttps://www.vecteezy.com/"];
-    
-    [simpleAlert runModal];
+- (void)about:(id)sender {
+    NSString *copyright = [NSString stringWithFormat:@"Svátek v.%@, build:%@\n©️2025 Mirek",
+                           [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"],
+                           [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]];
+
+    NSAlert *alert = [[NSAlert alloc] init];
+    alert.messageText = copyright;
+    [alert addButtonWithTitle:@"Budiž"];
+    alert.informativeText = @"Ikona aplikace pochází z\nhttps://www.vecteezy.com/";
+    [alert runModal];
 }
 
--(void)tryRegisterLaunchLogin:(id)sender{
-    SMAppServiceStatus status = [smaService status];
-    NSLog(@"Status: %ld", (long)status);
-    NSError *lastError;
+- (void)tryRegisterLaunchLogin:(id)sender {
+    SMAppServiceStatus status = [self.smaService status];
+    NSError *error = nil;
     BOOL registered = NO;
-    
-    if (status == SMAppServiceStatusNotFound){
-        NSLog(@"WTF - status not found??");
-        NSLog(@"Will try to register service");
-        NSError *error;
-        if(!(registered = [smaService registerAndReturnError:&error])){
-            NSLog(@"Registration failed! Reason: %@", error);
-            return;
-        }
-        NSLog(@"Service registered");
 
-
+    switch (status) {
+        case SMAppServiceStatusNotFound:
+            NSLog(@"WTF - status not found??");
+            registered = [self.smaService registerAndReturnError:&error];
+            break;
+        case SMAppServiceStatusEnabled:
+            [self.smaService unregisterAndReturnError:&error];
+            break;
+        case SMAppServiceStatusRequiresApproval:
+            [[[NSAlert alloc] init] runModal];
+            registered = [self.smaService registerAndReturnError:&error];
+            break;
+        default:
+            break;
     }
-    
-    if(status == SMAppServiceStatusEnabled){
-        NSLog(@"Unregistering service ...");
-        if([smaService unregisterAndReturnError:&lastError]){
-            NSLog(@"Deregistration failed. Reason: %@",lastError);
-            return;
-        }
-        
-        [[statusItem button] setKeyEquivalent:@""];
-        NSLog(@"Service deregistered.");
-    }
-    
-    if(status == SMAppServiceStatusRequiresApproval){
-        NSLog(@"Will try to register service");
-
-        NSAlert *simpleAlert = [[NSAlert alloc] init];
-        [simpleAlert setMessageText:@"Budete požádán/a o svolení aktivace služby při startu."];
-        [simpleAlert addButtonWithTitle:@"Rozumím"];
-        [simpleAlert setInformativeText:@""];
-
-        [simpleAlert runModal];
-        
-        NSError *error;
-        if(!(registered = [smaService registerAndReturnError:&error])){
-            NSLog(@"Registration failed! Reason: %@", error);
-            return;
-        }
-        NSLog(@"Service registered");
-        return;
-    }
-    
-    if(status == SMAppServiceStatusNotRegistered){
-        NSLog(@"Will try to register service");
-        NSError *error;
-        if(!(registered = [smaService registerAndReturnError:&error])){
-            NSLog(@"Registration failed! Reason: %@", error);
-            return;
-        }
-        NSLog(@"Service registered");
-    }
-
 
     NSString *title = registered ? @"Spouštět při startu ✔️" : @"Spouštět při startu";
-    
-    if(launchAtLogin == nil){
-        launchAtLogin = [[NSMenuItem alloc] initWithTitle:title action:@selector(tryRegisterLaunchLogin:)keyEquivalent:@""];
-    }else{
-        [launchAtLogin setTitle:title];
+    if (!self.launchAtLogin) {
+        self.launchAtLogin = [[NSMenuItem alloc] initWithTitle:title action:@selector(tryRegisterLaunchLogin:) keyEquivalent:@""];
+    } else {
+        self.launchAtLogin.title = title;
     }
-    NSLog(@"Service status: %@ Status: %ld", title, status);
-
+    NSLog(@"Service status: %@ Status: %ld", title, (long)status);
 }
 
-- (void) setNamesForToday:(NSString*)todayStr dateFormatter:(NSDateFormatter*) dateFormat{
-    if(nameDays == nil){
+- (void)setNamesForToday:(NSString *)todayStr dateFormatter:(NSDateFormatter *)dateFormat {
+    if (!self.nameDays) {
         [self setupNameDays];
     }
 
-    hilite = false;
-    lastCheckDate = nil;
-    lastCheckDate = [NSString stringWithString:todayStr];
-    todayName = [[nameDays objectForKey:todayStr] objectForKey:@"name"];
-    [[statusItem button] setTitle: todayName];
-    
-    hilite = [[nameDays objectForKey:todayStr] boolForKey:@"hilite"];
-    [[[statusItem button]image] setTemplate:!hilite];
-    NSDateComponents* deltaComps = [[NSDateComponents alloc] init];
-    [deltaComps setDay:1];
-    NSString* tomorrowStr = [dateFormat stringFromDate:[[NSCalendar currentCalendar] dateByAddingComponents:deltaComps  toDate:[NSDate date] options:0]];
-    tomorrowName = [NSString stringWithFormat:@"Zítra %@",[[nameDays objectForKey:tomorrowStr]objectForKey: @"name"]];
+    NSDictionary *todayEntry = self.nameDays[todayStr];
+    if (!todayEntry) return;
 
-    [deltaComps setDay:2];
-    NSString* afterTomorrowStr = [dateFormat stringFromDate:[[NSCalendar currentCalendar] dateByAddingComponents:deltaComps  toDate:[NSDate date] options:0]];
-    dayAfterTomorrowName = [NSString stringWithFormat:@"Pozítří %@",[[nameDays objectForKey:afterTomorrowStr] objectForKey: @"name"] ];
+    self.lastCheckDate = todayStr;
+    self.todayName = todayEntry[@"name"];
+    self.statusItem.button.title = self.todayName;
 
-    nameDays = nil;
+    // Check if any contacts match today's name day
+    NSString *matchingContacts = [self getStringOfContactNamesForName:self.todayName];
+    self.hilite = (matchingContacts.length > 0);
+    self.statusItem.button.image.template = !self.hilite;
+
+    // Start or stop glow animation based on matches
+    if (self.hilite) {
+        [self startGlowAnimation];
+    } else {
+        [self stopGlowAnimation];
+    }
+
+    NSDateComponents *deltaComps = [[NSDateComponents alloc] init];
+    deltaComps.day = 1;
+    NSString *tomorrowStr = [dateFormat stringFromDate:[[NSCalendar currentCalendar] dateByAddingComponents:deltaComps toDate:[NSDate date] options:0]];
+    self.tomorrowName = [NSString stringWithFormat:@"Zítra %@", self.nameDays[tomorrowStr][@"name"]];
+
+    deltaComps.day = 2;
+    NSString *afterTomorrowStr = [dateFormat stringFromDate:[[NSCalendar currentCalendar] dateByAddingComponents:deltaComps toDate:[NSDate date] options:0]];
+    self.dayAfterTomorrowName = [NSString stringWithFormat:@"Pozítří %@", self.nameDays[afterTomorrowStr][@"name"]];
 }
 
-- (void)setupMenu{
+- (void)setupMenu {
     NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
-    [dateFormat setDateFormat:@"M/d"];
+    dateFormat.dateFormat = @"M/d";
     NSString *todayStr = [dateFormat stringFromDate:[NSDate now]];
-    
-    if([todayStr isEqualToString:lastCheckDate]){
-        SMAppServiceStatus status = [smaService status];
-        NSString *title = (status == SMAppServiceStatusEnabled) ? @"Spouštět při startu  ✔️" : @"Spouštět při startu";
-        NSLog(@"Service status: %ld", status);
-        if(launchAtLogin == nil){
-            launchAtLogin = [[NSMenuItem alloc] initWithTitle:title action:@selector(tryRegisterLaunchLogin:)keyEquivalent:@""];
-        }else{
-            [launchAtLogin setTitle:title];
+
+    if ([todayStr isEqualToString:self.lastCheckDate]) {
+        SMAppServiceStatus status = [self.smaService status];
+        NSString *title = (status == SMAppServiceStatusEnabled) ? @"Spouštět při startu ✔️" : @"Spouštět při startu";
+
+        if (!self.launchAtLogin) {
+            self.launchAtLogin = [[NSMenuItem alloc] initWithTitle:title action:@selector(tryRegisterLaunchLogin:) keyEquivalent:@""];
+        } else {
+            self.launchAtLogin.title = title;
         }
-        NSLog(@"Already checked today.");
         return;
     }
 
     [self setNamesForToday:todayStr dateFormatter:dateFormat];
-    
-    statusItem.button.toolTip =  tomorrowName;
-    
-    SMAppServiceStatus status = [smaService status];
-    NSString *title = (status == SMAppServiceStatusEnabled) ? @"Spouštět při startu  ✔️" : @"Spouštět při startu";
-    NSLog(@"Service status: %ld", status);
-    
-    
-    NSFont *font=[NSFont boldSystemFontOfSize:[NSFont systemFontSize]];
-    NSMutableAttributedString *attTomorrow = [[NSMutableAttributedString alloc] initWithString:tomorrowName];
-    [attTomorrow beginEditing];
-    [attTomorrow addAttribute:NSFontAttributeName value:font range:NSMakeRange(6, [tomorrowName length] - 6)];
-    [attTomorrow addAttribute:NSForegroundColorAttributeName value:[NSColor systemRedColor] range:NSMakeRange(6, [tomorrowName length] - 6)];
-    [attTomorrow endEditing];
 
-    NSMutableAttributedString *attAfterTomorrow = [[NSMutableAttributedString alloc] initWithString:dayAfterTomorrowName];
-    [attAfterTomorrow beginEditing];
-    [attAfterTomorrow addAttribute:NSFontAttributeName value:font range:NSMakeRange(8, [dayAfterTomorrowName length] - 8)];
-    [attAfterTomorrow addAttribute:NSForegroundColorAttributeName value:[NSColor systemOrangeColor] range:NSMakeRange(8, [dayAfterTomorrowName length] - 8)];
-    [attAfterTomorrow endEditing];
-
-    if(launchAtLogin == nil){
-        launchAtLogin = [[NSMenuItem alloc] initWithTitle:title action:@selector(tryRegisterLaunchLogin:)keyEquivalent:@""];
-    }else{
-        [launchAtLogin setTitle:title];
+    // Build tooltip with matching contacts if found
+    NSString *matchingContacts = [self getStringOfContactNamesForName:self.todayName];
+    if (matchingContacts.length > 0) {
+        self.statusItem.button.toolTip = [NSString stringWithFormat:@"Svátek má: %@\n\n%@", matchingContacts, self.tomorrowName];
+    } else {
+        self.statusItem.button.toolTip = self.tomorrowName;
     }
 
-    if(tomorrowItem == nil){
-        tomorrowItem = [[NSMenuItem alloc] initWithTitle:tomorrowName action:nil keyEquivalent:@""];
-    }
+    SMAppServiceStatus status = [self.smaService status];
+    NSString *title = (status == SMAppServiceStatusEnabled) ? @"Spouštět při startu ✔️" : @"Spouštět při startu";
 
-    [tomorrowItem setAttributedTitle:attTomorrow];
-
-    if(dayAfterTomorrowItem == nil){
-        dayAfterTomorrowItem = [[NSMenuItem alloc] initWithTitle:dayAfterTomorrowName action:nil keyEquivalent:@""];
-    }else{
-        [dayAfterTomorrowItem setAttributedTitle:attAfterTomorrow];
-        // we are only updating existing menu so we can leave ...
-        return;
-    }
-
-    [dayAfterTomorrowItem setAttributedTitle:attAfterTomorrow];
+    self.launchAtLogin = [[NSMenuItem alloc] initWithTitle:title action:@selector(tryRegisterLaunchLogin:) keyEquivalent:@""];
+    self.tomorrowItem = [[NSMenuItem alloc] initWithTitle:self.tomorrowName action:nil keyEquivalent:@""];
+    self.dayAfterTomorrowItem = [[NSMenuItem alloc] initWithTitle:self.dayAfterTomorrowName action:nil keyEquivalent:@""];
 
     NSMenu *menu = [[NSMenu alloc] init];
-    [menu addItem:tomorrowItem];
-    [menu addItem:dayAfterTomorrowItem];
+    [menu addItem:self.tomorrowItem];
+    [menu addItem:self.dayAfterTomorrowItem];
     [menu addItem:[NSMenuItem separatorItem]];
-    [menu addItem:launchAtLogin];
-    [menu addItemWithTitle:@"Upozornit na svátky z kontaktů" action:@selector(scanContacts:) keyEquivalent:@""];
-    [menu addItemWithTitle:@"Nastavení" action:@selector(showSettingsDialog:) keyEquivalent:@""];
+    [menu addItem:self.launchAtLogin];
+    [menu addItem:[NSMenuItem separatorItem]];
     [menu addItemWithTitle:@"O aplikaci" action:@selector(about:) keyEquivalent:@""];
     [menu addItem:[NSMenuItem separatorItem]];
+    [menu addItemWithTitle:@"Zkontrolovat kontakty" action:@selector(scanContacts:) keyEquivalent:@""];
+    [menu addItem:[NSMenuItem separatorItem]];
     [menu addItemWithTitle:@"Ukončit" action:@selector(quit:) keyEquivalent:@""];
-    
-    NSMenu *removed = statusItem.menu;
-  
-    statusItem.menu = menu;
-    
-//    [nameDays removeAllObjects];
-//    nameDays = nil;
-    
-    removed = nil;
+
+    self.statusItem.menu = menu;
 }
 
-- (void) contactScan
-{
-    if ([CNContactStore class]) {
-        CNEntityType entityType = CNEntityTypeContacts;
-        if( [CNContactStore authorizationStatusForEntityType:entityType] == CNAuthorizationStatusNotDetermined)
-         {
-             NSLog(@"Askinng for access rights for Contacts ...");
-             NSAlert *simpleAlert = [[NSAlert alloc] init];
-             [simpleAlert setMessageText:@"Budete požádán/a o svolení k přístupu k Vašim kontaktům.\nAplikace je projde a uloží si pouze seznam křestních jmen,\n na která vás, v den svátku, upozorní notifikací."];
-             [simpleAlert addButtonWithTitle:@"Rozumím"];
-             [simpleAlert setInformativeText:@""];
-
-             [simpleAlert runModal];
-
-             CNContactStore * contactStore = contacts;
-             [contactStore requestAccessForEntityType:entityType completionHandler:^(BOOL granted, NSError * _Nullable error) {
-                 if(granted){
-                     [self getAllContact];
-                 }else{
-                     NSLog(@"No accass granted! %@",error);
-                 }
-             }];
-         }
-        else if( [CNContactStore authorizationStatusForEntityType:entityType]== CNAuthorizationStatusAuthorized)
-        {
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^
-            {
-                [self getAllContact];
-            });
-            
-        }else if( [CNContactStore authorizationStatusForEntityType:entityType]== CNAuthorizationStatusDenied){
-            NSLog(@"Access to contacs denied!");
-        }
-    }
-}
-
--(void)getAllContact
-{
-    NSLog(@"Getting contacts ....");
-    if([CNContactStore class])
-    {
-        NSError* contactError;
-        CNContactStore* addressBook = [[CNContactStore alloc]init];
-        [addressBook containersMatchingPredicate:[CNContainer predicateForContainersWithIdentifiers: @[addressBook.defaultContainerIdentifier]] error:&contactError];
-        NSArray * keysToFetch =@[CNContactEmailAddressesKey, CNContactPhoneNumbersKey, CNContactFamilyNameKey, CNContactGivenNameKey, CNContactPostalAddressesKey];
-        CNContactFetchRequest * request = [[CNContactFetchRequest alloc]initWithKeysToFetch:keysToFetch];
-        
-        BOOL success = [addressBook enumerateContactsWithFetchRequest:request error:&contactError usingBlock:^(CNContact * __nonnull contact, BOOL * __nonnull stop){
-            [self parseContactWithContact:contact];
-        }];
-        if(!success){
-            NSLog(@"Contact reading failed, reason: %@", contactError);
-        }
-    }
-}
-
-- (void)parseContactWithContact :(CNContact* )contact
-{
-    NSString * firstName =  contact.givenName;
-    NSString * lastName =  contact.familyName;
-//    NSString * phone = [[contact.phoneNumbers valueForKey:@"value"] valueForKey:@"digits"];
-//    NSString * email = [contact.emailAddresses valueForKey:@"value"];
-//    NSArray * addrArr = [self parseAddressWithContac:contact];
-    
-    NSLog(@"First name: %@ [%@]", firstName,lastName);
-
-}
-
-- (NSMutableArray *)parseAddressWithContac: (CNContact *)contact
-{
-    NSMutableArray * addrArr = [[NSMutableArray alloc]init];
-    CNPostalAddressFormatter * formatter = [[CNPostalAddressFormatter alloc]init];
-    NSArray * addresses = (NSArray*)[contact.postalAddresses valueForKey:@"value"];
-    if (addresses.count > 0) {
-        for (CNPostalAddress* address in addresses) {
-            [addrArr addObject:[formatter stringFromPostalAddress:address]];
-        }
-    }
-    return addrArr;
-}
-
-- (void)showSettings:(id)sender{
-    SettingsDialog *settingsDlg = [[SettingsDialog alloc] initWithWindowNibName:@"SettingsDialog" owner:self];
-//    MNSettings *settingsDlg = [[MNSettings alloc]  initWithWindowNibName:NSStringFromClass([self class])];
-    NSWindow *settingsWindow = [settingsDlg window];
-    [NSApp runModalForWindow:settingsWindow];
-    NSLog(@"Modal sheet ended!");
-    
-    [NSApp endSheet:settingsWindow];
-    
-}
-
-- (void)quit:(id)sender{
+- (void)quit:(id)sender {
     [[NSApplication sharedApplication] terminate:self];
 }
 
--(void) showSettingsDialog:(id)sender{
-    SettingsDialog *settingsDlg = [[SettingsDialog alloc]  initWithWindowNibName:@"SettingsDialog"];
-//    MNSettings *settingsDlg = [[MNSettings alloc]  initWithWindowNibName:NSStringFromClass([self class])];
-    if(!nameDays){
+- (void)scanContacts:(id)sender {
+    NSLog(@"Scanning contacs ...");
+    [self scanContactsMatchingNameDaysToDictionary];
+    
+}
+
+- (void)scanContactsMatchingNameDaysToDictionary {
+    if (!self.nameDays) {
         [self setupNameDays];
     }
-    [settingsDlg setNameDays: nameDays];
-    NSWindow *settingsWindow = [settingsDlg window];
-    [NSApp runModalForWindow:settingsWindow];
-    NSLog(@"Modal sheet ended!");
-    
-    [NSApp endSheet:settingsWindow];
+
+    // Scan in background process, dont block UI
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSMutableDictionary<NSString *, NSString *> *normalizedNameMap = [NSMutableDictionary dictionary];
+        for (NSDictionary *entry in [self.nameDays allValues]) {
+            NSString *nameField = entry[@"name"];
+            if (!nameField) continue;
+
+            // Split by " ∙ " to match how names are joined in loadDefaultNameDays
+            NSArray *names = [nameField componentsSeparatedByString:@" ∙ "];
+            for (NSString *name in names) {
+                NSString *trimmed = [name stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+                if (trimmed.length == 0) continue;
+                NSString *normalized = [[trimmed stringByFoldingWithOptions:NSDiacriticInsensitiveSearch locale:[NSLocale currentLocale]] lowercaseString];
+                normalizedNameMap[normalized] = trimmed;
+                NSLog(@"📝 Přidán svátek: '%@' -> normalized: '%@'", trimmed, normalized);
+            }
+        }
+
+        NSMutableDictionary<NSString *, NSMutableArray<CNContact *> *> *matches = [NSMutableDictionary dictionary];
+        NSArray *keysToFetch = @[CNContactGivenNameKey, CNContactFamilyNameKey];
+        CNContactFetchRequest *request = [[CNContactFetchRequest alloc] initWithKeysToFetch:keysToFetch];
+
+        NSLog(@"Začínám skenování kontaktů. Celkem svátků: %lu", (unsigned long)normalizedNameMap.count);
+
+        NSError *error = nil;
+        BOOL success = [self.contacts enumerateContactsWithFetchRequest:request
+                                                                 error:&error
+                                                            usingBlock:^(CNContact * _Nonnull contact, BOOL * _Nonnull stop) {
+            if (!contact.givenName || contact.givenName.length == 0) return;
+
+            NSString *normalizedGiven = [[contact.givenName stringByFoldingWithOptions:NSDiacriticInsensitiveSearch locale:[NSLocale currentLocale]] lowercaseString];
+
+            NSString *originalName = normalizedNameMap[normalizedGiven];
+            if (originalName) {
+                if (!matches[originalName]) {
+                    matches[originalName] = [NSMutableArray array];
+                }
+                [matches[originalName] addObject:contact];
+                NSLog(@"Shoda! Kontakt: %@ %@ -> svátek: %@", contact.givenName, contact.familyName ?: @"", originalName);
+            }
+        }];
+
+        if (!success || error) {
+            NSLog(@"Chyba při načítání kontaktů: %@", error.localizedDescription);
+        }
+        
+        contacsRead = YES;
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.matchedContactsByName = matches;
+            NSLog(@"Načteno %lu svátečních jmen s odpovídajícími kontakty", (unsigned long)matches.count);
+
+            // Force menu refresh to update tooltip and icon
+            [self setupMenu];
+        });
+    });
+}
+-(NSString *) getStringOfContactNamesForName: (NSString *)name {
+    NSMutableString *namesList = [[NSMutableString alloc] init];
+
+    NSLog(@"Hledám kontakty pro svátek: '%@'", name);
+    NSLog(@"   Celkem svátků v databázi: %lu", (unsigned long)self.matchedContactsByName.count);
+
+    // Split the name by " ∙ " to handle multiple names on the same day
+    NSArray *names = [name componentsSeparatedByString:@" ∙ "];
+
+    for (NSString *singleName in names) {
+        NSString *trimmedName = [singleName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        NSArray<CNContact *> *contacts = self.matchedContactsByName[trimmedName];
+
+        NSLog(@"   Kontroluji jméno: '%@' -> %lu kontaktů", trimmedName, (unsigned long)(contacts ? contacts.count : 0));
+
+        if (contacts && contacts.count > 0) {
+            for (CNContact *contact in contacts) {
+                NSString *fullName = [NSString stringWithFormat:@"%@ %@", contact.givenName, contact.familyName ?: @""];
+                if (namesList.length > 0) {
+                    [namesList appendString:@", "];
+                }
+                [namesList appendString:fullName];
+                NSLog(@"   +Přidán kontakt: %@", fullName);
+            }
+        }
+    }
+
+    NSLog(@"   Výsledek: '%@'", namesList.length > 0 ? namesList : @"(žádné shody)");
+    return [namesList copy];
+}
+
+- (void)startGlowAnimation {
+    // Stop any existing timer
+    [self stopGlowAnimation];
+
+    // Start a new timer that triggers every 60 seconds
+    self.glowTimer = [NSTimer scheduledTimerWithTimeInterval:60.0
+                                                      target:self
+                                                    selector:@selector(performGlow:)
+                                                    userInfo:nil
+                                                     repeats:YES];
+    // Trigger immediately for the first time
+    [self.glowTimer fire];
+
+    NSLog(@"✨ Glow animation started");
+}
+
+- (void)stopGlowAnimation {
+    if (self.glowTimer) {
+        [self.glowTimer invalidate];
+        self.glowTimer = nil;
+        NSLog(@"⏹ Glow animation stopped");
+    }
+}
+
+- (void)performGlow:(NSTimer *)timer {
+    if (!self.statusItem.button) return;
+
+    NSLog(@"Performing glow animation");
+
+    // Start the letter-by-letter glow animation
+    [self startLetterGlowAnimation];
+}
+
+- (void)startLetterGlowAnimation {
+    // Stop any existing letter animation
+    [self stopLetterGlowAnimation];
+
+    self.currentGlowIndex = -1;
+
+    // Start a timer that animates each letter
+    // Duration: 0.08 seconds per letter for smooth effect
+    self.letterGlowTimer = [NSTimer scheduledTimerWithTimeInterval:0.08
+                                                            target:self
+                                                          selector:@selector(animateNextLetter:)
+                                                          userInfo:nil
+                                                           repeats:YES];
+
+    NSLog(@"Letter glow animation started");
+}
+
+- (void)stopLetterGlowAnimation {
+    if (self.letterGlowTimer) {
+        [self.letterGlowTimer invalidate];
+        self.letterGlowTimer = nil;
+
+        // Reset to normal title
+        if (self.statusItem.button && self.todayName) {
+            self.statusItem.button.attributedTitle = nil;
+            self.statusItem.button.title = self.todayName;
+        }
+
+        NSLog(@"Letter glow animation stopped");
+    }
+}
+
+- (void)animateNextLetter:(NSTimer *)timer {
+    if (!self.todayName || self.todayName.length == 0) {
+        [self stopLetterGlowAnimation];
+        return;
+    }
+
+    self.currentGlowIndex++;
+
+    // If we've gone through all letters twice, stop
+    if (self.currentGlowIndex >= self.todayName.length * 2) {
+        [self stopLetterGlowAnimation];
+        return;
+    }
+
+    // Get the actual index (wrap around for second pass)
+    NSInteger actualIndex = self.currentGlowIndex % self.todayName.length;
+
+    // Update the button with the glowing letter
+    NSAttributedString *attrString = [self attributedStringWithGlowAtIndex:actualIndex];
+    self.statusItem.button.attributedTitle = attrString;
+}
+
+- (NSAttributedString *)attributedStringWithGlowAtIndex:(NSInteger)index {
+    if (!self.todayName || index < 0 || index >= self.todayName.length) {
+        return [[NSAttributedString alloc] initWithString:self.todayName ?: @""];
+    }
+
+    NSMutableAttributedString *attrString = [[NSMutableAttributedString alloc] initWithString:self.todayName];
+
+    // Default attributes - normal text
+    NSDictionary *normalAttributes = @{
+        NSForegroundColorAttributeName: [NSColor controlTextColor],
+        NSFontAttributeName: [NSFont systemFontOfSize:0] // 0 = default size
+    };
+
+    // Glow attributes - brighter and with shadow
+    NSShadow *shadow = [[NSShadow alloc] init];
+    shadow.shadowColor = self.hilite ? [NSColor colorWithCalibratedRed:1.0 green:0.8 blue:0.0 alpha:1.0]
+                                     : [NSColor whiteColor];
+    shadow.shadowBlurRadius = 3.0;
+    shadow.shadowOffset = NSMakeSize(0, 0);
+
+    NSDictionary *glowAttributes = @{
+        NSForegroundColorAttributeName: self.hilite ? [NSColor colorWithCalibratedRed:1.0 green:0.9 blue:0.0 alpha:1.0]
+                                                    : [NSColor whiteColor],
+        NSFontAttributeName: [NSFont boldSystemFontOfSize:0],
+        NSShadowAttributeName: shadow
+    };
+
+    // Apply normal attributes to all
+    [attrString setAttributes:normalAttributes range:NSMakeRange(0, self.todayName.length)];
+
+    // Apply glow to the current letter
+    [attrString setAttributes:glowAttributes range:NSMakeRange(index, 1)];
+
+    return attrString;
 }
 
 @end

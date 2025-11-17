@@ -55,7 +55,7 @@
     NSMutableArray *newDates = [[NSMutableArray alloc] initWithCapacity:[[self nameDays] count]];
     NSMutableArray *newHilites = [[NSMutableArray alloc] initWithCapacity:[[self nameDays] count]];
     NSArray *objects;
-    NSArray *keys;
+   // NSArray *keys;
     
     NSDateFormatter *df = [[NSDateFormatter alloc] init];
     [df setDateFormat:@"MM/dd"];
